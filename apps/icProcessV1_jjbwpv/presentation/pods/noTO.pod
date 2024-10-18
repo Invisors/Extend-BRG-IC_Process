@@ -1,0 +1,363 @@
+{
+  "podId": "noTO",
+  "seed": {
+    "parameters": [
+      "renderSection"
+    ],
+    "template": {
+      "type": "fieldSet",
+      "title": "No TO - IC Details",
+      "id": "noTODetails",
+      "render": "<% @@renderSection@@ %>",
+      "children": [
+        {
+          "type": "instanceList",
+          "label": "Existing IC",
+          "id": "existingICNoTO",
+          "required": "false",
+          "onChange": "<% 
+                        if(!empty self.value){
+                          var cw = cwDetail.invoke({'cw': self.value[0]}).data[0];
+                          fNameNoTO.value = cw?.firstName;
+                          fNameNoTO.setEnabled(false);
+                          lNameNoTO.value = cw?.lastName;
+                          lNameNoTO.setEnabled(false);
+                          icEmailNoTO.value = cw?.primaryEmailAddress;
+                          icEmailNoTO.setEnabled(false);
+                          icCountryNoTO.setValues(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country] :[] );
+                          icCountryNoTO.setValue(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country.id] :[] );
+                          icCountryNoTO.setEnabled(false);
+                          icAddressLine1NoTO.value = cw?.primaryHomeAddress?.addressLine1;
+                          icAddressLine1NoTO.setEnabled(false);
+                          icAddressLine2NoTO.value = cw?.primaryHomeAddress?.addressLine2;
+                          icAddressLine2NoTO.setEnabled(false);
+                          icCityNoTO.value = cw?.primaryHomeAddress?.city;
+                          icCityNoTO.setEnabled(false);
+                          icCountryRegionNoTO.setValues(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1] :[] );
+                          icCountryRegionNoTO.setValue(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1.id] :[] );
+                          icCountryRegionNoTO.setEnabled(false);
+                        } else {
+                            fNameNoTO.value = '';
+                            fNameNoTO.setEnabled(true);
+                            lNameNoTO.value = '';
+                            lNameNoTO.setEnabled(true);
+                            icEmailNoTO.value = '';
+                            icEmailNoTO.setEnabled(true);
+                            icCountryNoTO.setValues(list:mapAttribute(countriesGET.data ?? [], 'country'));
+                            icCountryNoTO.setValue([]);
+                            icCountryNoTO.setEnabled(true);
+                            icAddressLine1NoTO.value = '';
+                            icAddressLine1NoTO.setEnabled(true);
+                            icAddressLine2NoTO.value = '';
+                            icAddressLine2NoTO.setEnabled(true);
+                            icCityNoTO.value = '';
+                            icCityNoTO.setEnabled(true);
+                            icCountryRegionNoTO.setValues([]);
+                            icCountryRegionNoTO.setValue([]);
+                            icCountryRegionNoTO.setEnabled(false);
+                        }
+                       %>",
+          "values": "<% [] %>",
+          "displayKey": "worker.descriptor",
+          "valueOutBinding": "createICDetail.data[].ic.id",
+          "searchEndPoint": "<% endpoints.searchCW %>",
+          "searchResultValues": "<% searchCW.data %>",
+          "view": "true",
+          "relatedTask": "true"
+        },
+        {
+          "type": "section",
+          "horizontal": true,
+          "id": "nameSecNoTO",
+          "children": [
+            {
+              "type": "text",
+              "label": "First Name",
+              "id": "fNameNoTO",
+              "required": "true",
+              "onChange": "<%
+                            if(!empty self.value && !empty lNameNoTO.value){
+                              var cwMatch = searchCW.invoke({'first': self.value, 'last': lNameNoTO.value, 'email': icEmailNoTO?.value});
+                              //debug.value = json:asJSON(cwMatch.data);
+                              if(!empty cwMatch.data){
+                                icMatchGridNoTO.setVisible(true);
+                                icMatchGridNoTO.setRows(cwMatch.data);
+                              }
+                            }  
+                           %>",
+              "valueOutBinding": "createICDetail.data[].icFirstName"
+            },
+            {
+              "type": "text",
+              "label": "Last Name",
+              "id": "lNameNoTO",
+              "required": "true",
+              "onChange": "<%
+                            if(!empty self.value && !empty fNameNoTO.value){
+                              var cwMatch = searchCW.invoke({'first': fNameNoTO.value, 'last': self.value, 'email': icEmailNoTO?.value});
+                              //debug.value = json:asJSON(cwMatch.data);
+                              if(!empty cwMatch.data){
+                                icMatchGridNoTO.setVisible(true);
+                                icMatchGridNoTO.setRows(cwMatch.data);
+                              }
+                            }  
+                           %>",
+              "valueOutBinding": "createICDetail.data[].icLastName"
+            },
+            {
+              "type": "text",
+              "label": "Email Address",
+              "id": "icEmailNoTO",
+              "required": "true",
+              "onChange": "<%
+                            if(!empty self.value){
+                              if(!validate:match('^([a-zA-Z0-9.]+)@([a-zA-Z0-9.]+).([a-zA-Z]{2,5})$',self.value)){
+                                self.setError('Enter a valid email format');
+                              } else {
+                                self.clearError();
+                                var cwMatch = searchCW.invoke({'email': self.value, 'first': fNameNoTO?.value, 'last': lNameNoTO?.value});
+                                //debug.value = json:asJSON(cwMatch.data);
+                                if(!empty cwMatch.data){
+                                  icMatchGridNoTO.setVisible(true);
+                                  icMatchGridNoTO.setRows(cwMatch.data);
+                                }
+                              }
+                            } else {
+                              self.clearError();
+                            }
+                           %>",
+              "valueOutBinding": "createICDetail.data[].icEmail"
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "label": "IC Match Potentials",
+          "id": "icMatchGridNoTO",
+          "visible": "false",
+          "columns": [
+            {
+              "type": "column",
+              "label": "Use Match",
+              "columnId": "useMatchCol",
+              "cellTemplate": {
+                "type": "fieldSet",
+                "children": [
+                  {
+                    "type": "hidden",
+                    "id": "hrICInstanceNoTO",
+                    "value": "<% {'id': row?.id, 'worker': {'descriptor': row?.descriptor}} %>"
+                  },
+                  {
+                    "type": "pageActionButton",
+                    "label": "Use This Match",
+                    "id": "useThisMatchNoTO",
+                    "onClick": "<%
+                                  existingICNoTO.setValues(!empty hrICInstanceNoTO.value ? [hrICInstanceNoTO.value] : []);
+                                  existingICNoTO.setValue(!empty hrICInstanceNoTO.value ? [hrICInstanceNoTO.value.id] : []);
+                                  const cw = cwDetail.invoke({'cw': hrICInstanceNoTO?.value?.id}).data[0];
+                                  fNameNoTO.value = cw?.firstName;
+                                  fNameNoTO.setEnabled(false);
+                                  lNameNoTO.value = cw?.lastName;
+                                  lNameNoTO.setEnabled(false);
+                                  icEmailNoTO.value = cw?.primaryEmailAddress;
+                                  icEmailNoTO.setEnabled(false);
+                                  icCountryNoTO.setValues(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country] :[] );
+                                  icCountryNoTO.setValue(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country.id] :[] );
+                                  icCountryNoTO.setEnabled(false);
+                                  icAddressLine1NoTO.value = cw?.primaryHomeAddress?.addressLine1;
+                                  icAddressLine1NoTO.setEnabled(false);
+                                  icAddressLine2NoTO.value = cw?.primaryHomeAddress?.addressLine2;
+                                  icAddressLine2NoTO.setEnabled(false);
+                                  icCityNoTO.value = cw?.primaryHomeAddress?.city;
+                                  icCityNoTO.setEnabled(false);
+                                  icCountryRegionNoTO.setValues(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1] :[] );
+                                  icCountryRegionNoTO.setValue(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1.id] :[] );
+                                  icCountryRegionNoTO.setEnabled(false);
+                                  %>",
+                    "visible": "true"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "column",
+              "label": "Existing IC",
+              "columnId": "existingICColNoTO",
+              "cellTemplate": {
+                "type": "text",
+                "id": "icDescriptorNoTO",
+                "enabled": "false",
+                "value": "<% row?.descriptor %>"
+              }
+            },
+            {
+              "type": "column",
+              "label": "Business Title",
+              "columnId": "busTitleColNoTO",
+              "cellTemplate": {
+                "type": "text",
+                "id": "busTitleNoTO",
+                "enabled": "false",
+                "value": "<% row?.businessTitle %>"
+              }
+            }
+          ],
+          "rows": "<% [] %>",
+          "rowVariableName": "row",
+          "doNotAdd": "true",
+          "doNotRemove": "true",
+          "doNotPutInTab": true,
+          "configurable": true
+        },
+        {
+          "type": "fieldSet",
+          "title": "Contact Info",
+          "horizontal": true,
+          "id": "contactFSNoTO",
+          "children": [
+            {
+              "type": "checkBox",
+              "label": "Use Supplier Contact Info",
+              "id": "useSuppContactHr",
+              "onChange": "<% 
+                    if(!empty self.value && self.value){
+                      addrSec1NoTO.setVisible(false);
+                      addrSec2NoTO.setVisible(false);
+                    } else {
+                      addrSec1NoTO.setVisible(true);
+                      addrSec2NoTO.setVisible(true);
+                    }
+                   %>",
+              "value": "true"
+            },
+            {
+              "type": "section",
+              "id": "addrSec1NoTO",
+              "visible": "false",
+              "children": [
+                {
+                  "type": "instanceList",
+                  "label": "Country",
+                  "id": "icCountryNoTO",
+                  "onChange": "<%
+                            if (!empty(self.value)){
+                              var countryData = countriesGET.data.find(x => {x.country.id == self.value[0]});
+                              var thisCountryRegions = countryData.countryRegions ?? [];
+                              if (!empty(thisCountryRegions)){
+                                icCountryRegionNoTO.setValues(thisCountryRegions);
+                                if (thisCountryRegions.size() == 1){
+                                  icCountryRegionNoTO.setValue([thisCountryRegions[0].id]);
+                                  icCountryRegionNoTO.setEnabled(false);
+                                } else {
+                                  icCountryRegionNoTO.setValue([]);
+                                  icCountryRegionNoTO.setEnabled(true);
+                                }
+                              } else {
+                                icCountryRegionNoTO.setValues([]);
+                                icCountryRegionNoTO.setValue([]);
+                                icCountryRegionNoTO.setEnabled(false);
+                              }
+                            } else {
+                              icCountryRegionNoTO.setValues([]);
+                              icCountryRegionNoTO.setValue([]);
+                              icCountryRegionNoTO.setEnabled(false);
+                            }
+                          %>",
+                  "values": "<% list:mapAttribute(countriesGET.data ?? [], 'country') %>",
+                  "valueOutBinding": "createICDetail.data[].icCountry.id",
+                  "view": "true",
+                  "relatedTask": "true"
+                },
+                {
+                  "type": "text",
+                  "label": "Address Line 1",
+                  "id": "icAddressLine1NoTO",
+                  "valueOutBinding": "createICDetail.data[].icAddressLine1"
+                },
+                {
+                  "type": "text",
+                  "label": "Address Line 2",
+                  "id": "icAddressLine2NoTO",
+                  "valueOutBinding": "createICDetail.data[].icAddressLine2"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "id": "addrSec2NoTO",
+              "visible": "false",
+              "children": [
+                {
+                  "type": "text",
+                  "label": "City",
+                  "id": "icCityNoTO",
+                  "valueOutBinding": "createICDetail.data[].icCity"
+                },
+                {
+                  "type": "instanceList",
+                  "label": "Country Region",
+                  "id": "icCountryRegionNoTO",
+                  "enabled": "false",
+                  "values": "<% [] %>",
+                  "valueOutBinding": "createICDetail.data[].icCountryRegion.id",
+                  "view": "true",
+                  "relatedTask": "true"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "icDetailSecNoTO",
+          "render": "false",
+          "children": [
+            {
+              "type": "fieldSet",
+              "horizontal": true,
+              "id": "itFSNoTO",
+              "children": [
+                {
+                  "type": "checkBox",
+                  "label": "Additional Technology Requirements",
+                  "id": "needsEmailLaptopNoTO",
+                  "onChange": "<%
+                                if(!empty self.value && self.value){
+                                  emailLaptopDesc.setVisible(true);
+                                  emailLaptopDesc.setRequired(true);
+                                  self.setWarning('In rare cases when BRG laptop and/or email is required, additonial technology assignment charges will be applied to the Contingent Worker/Supplier for these additional resources.  Legal approval will be required for any requests.');
+                                } else {
+                                  emailLaptopDesc.setVisible(false);
+                                  emailLaptopDesc.setRequired(false);
+                                  self.clearWarning();
+                                }
+                                         %>",
+                  "valueOutBinding": "createICDetail.data[].requiresBRGEmailAndOrLaptop"
+                },
+                {
+                  "type": "textArea",
+                  "label": "Explain what IT is needed",
+                  "id": "emailLaptopDescNoTO",
+                  "visible": "false",
+                  "valueOutBinding": "createICDetail.data[].brgEmailOrLaptopReason"
+                }
+              ]
+            },
+            {
+              "type": "instanceList",
+              "label": "BRG Office",
+              "id": "brgOfficeNoTO",
+              "required": "true",
+              "values": "<% getOffices.data ?? [] %>",
+              "selectedValues": "<% ['55a39a865c6d1000d4337dcfc84f0000'] %>",
+              "valueOutBinding": "createICDetail.data[].brgOffice.id",
+              "view": "true",
+              "relatedTask": "true"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

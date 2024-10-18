@@ -1,0 +1,272 @@
+{
+  "id": 2,
+  "name": "TaskOrder",
+  "label": "Task Order",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "taskOrders",
+    "label": "Task Orders"
+  },
+  "fields": [
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "IcAgreementRequest",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "IC Agreement Request",
+      "type": "SINGLE_INSTANCE",
+      "name": "icAgreementRequest",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "TaskOrderType",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "taskOrderType",
+      "id": 2
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierNameOrEntityName",
+      "id": 3
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "PROJECT",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "BRG Matter",
+      "type": "SINGLE_INSTANCE",
+      "name": "brgMatter",
+      "id": 4
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "isThisANonBillableProject",
+      "id": 5
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "reasonForDoingAdministrativeOrBdWork",
+      "id": 6
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "CUSTOMER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "clientOrMatterName",
+      "id": 7
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "descriptionOfServicesForThisSpecificProject",
+      "id": 8
+    },
+    {
+      "precision": "DAY",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "firstDateOfWork",
+      "id": 9
+    },
+    {
+      "precision": "DAY",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "endDate",
+      "id": 10
+    },
+    {
+      "decimals": 3,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DECIMAL",
+      "name": "maximumHours",
+      "id": 11
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "maximumAmount",
+      "id": 12
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "PaymentType",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "typeOfPayment",
+      "id": 13
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "requiresModificationOfPaymentTerms",
+      "id": 14
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "modificationOfPaymentTerms",
+      "id": 15
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "icChargesToBeTreatedAsExpenses",
+      "id": 16
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "deliverables",
+      "id": 17
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "additionalDetails",
+      "id": 18
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "otherTermsAndConditions",
+      "id": 19
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "notes",
+      "id": 20
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "requestingIcExceptionPolicyForGmCalculations",
+      "id": 21
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "payAmountForEachInstallment",
+      "id": 22
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "scheduleOfWork",
+      "id": 23
+    },
+    {
+      "precision": "DAY",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "taskOrderDate",
+      "id": 24
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "icdbNotes",
+      "id": 25
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "signed",
+      "id": 26
+    },
+    {
+      "target": "IcDetail",
+      "isPurgeable": false,
+      "type": "MULTI_INSTANCE",
+      "name": "icDetails",
+      "id": 27
+    },
+    {
+      "id": 28,
+      "name": "referral",
+      "type": "BOOLEAN",
+      "isPurgeable": false,
+      "enableIndex": false
+    },
+    {
+      "id": 29,
+      "name": "icChargesToBeTreatedAsExpensesText",
+      "type": "TEXT",
+      "isReferenceId": false,
+      "useForDisplay": false,
+      "isPurgeable": false,
+      "enableIndex": false,
+      "enableSearch": false
+    }
+  ]
+}

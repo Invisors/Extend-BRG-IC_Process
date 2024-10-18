@@ -1,0 +1,45 @@
+{
+  "id": 6,
+  "name": "BrgBillingTitle",
+  "label": "Brg Billing Title",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "brgBillingTitles",
+    "label": "Brg Billing Titles"
+  },
+  "fields": [
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "name",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "JOB_PROFILE",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "jobProfile",
+      "id": 2
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "billingRange",
+      "id": 3
+    }
+  ]
+}

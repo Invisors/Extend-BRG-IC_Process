@@ -1,0 +1,7 @@
+{
+  "id": 1,
+  "name": "SetupICProcess",
+  "enabledForPageSecurity": false,
+  "enabledForOrchestrationSecurity": false,
+  "label": "Set Up: IC Process"
+}

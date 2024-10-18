@@ -1,0 +1,443 @@
+{
+  "id": "requestNewICAgreementOrTO",
+  "endPoints": [
+    {
+      "name": "currentWorkerGET",
+      "url": "workers/me",
+      "authType": "sso",
+      "baseUrlType": "staffing",
+      "bestEffort": true
+    },
+    {
+      "name": "companiesGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT company, addressPrimary, publicAddresses FROM companies ` + (!empty(attrstore.CompanyIds) ? ('WHERE company in (' + attrstore.CompanyIds + ')') : '') + ` ORDER BY company`) %>",
+      "authType": "sso"
+    },
+    {
+      "name": "suppliersGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT supplier, allSupplierConnections, defaultPaymentTerms, defaultCurrency, defaultPaymentType FROM suppliers1(dataSourceFilter=supplierFilter) ` + (!empty(attrstore.SupplierIds) ? ('WHERE supplier in (' + attrstore.SupplierIds + ')') : '') + ` ORDER BY supplier`) %>",
+      "authType": "sso"
+    },
+    {
+      "name": "supplierCategoriesGET",
+      "url": "<% 'GetReferences/launch?type=Supplier_Category_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs"
+    },
+    {
+      "name": "costCentersGET",
+      "url": "<% 'GetReferences/launch?type=Cost_Center_Reference_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs"
+    },
+    {
+      "name": "brgBusinessUnitsGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT planDimension FROM allBudgetDimensionByType (BudgetDimensionTypeForIntegration = ({{attrstore.BRGBusinessUnitReferenceIDType}})) ORDER BY planDimension`) %>",
+      "authType": "sso",
+      "exclude": "<% empty(attrstore.BRGBusinessUnitReferenceIDType) %>"
+    },
+    {
+      "name": "workerSearchGETDeferred",
+      "url": "<% 'workers?search=' + instanceListQuery %>",
+      "deferred": true,
+      "exclude": "<% empty(instanceListQuery) %>",
+      "authType": "sso",
+      "baseUrlType": "staffing"
+    },
+    {
+      "name": "supervisoryOrganizationsGETDeferred",
+      "url": "<% '/data?query=' + string:pathEncode('SELECT organization FROM supervisoryOrganizations WHERE supervisoryManager IN (' + manager + ') ORDER BY name') %>",
+      "deferred": true,
+      "exclude": "<% empty(manager) %>",
+      "baseUrlType": "WQL"
+    },
+    {
+      "name": "countriesGET",
+      "baseUrlType": "WQL",
+      "authType": "sso",
+      "url": "<% '/data?query=' + string:urlEncode('SELECT country, countryRegions FROM countries ORDER BY country') %>"
+    },
+    {
+      "name": "taskOrderTypesGET",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of TaskOrderType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/taskOrderTypes` %>"
+    }
+  ],
+  "presentation": {
+    "tabs": [
+      {
+        "type": "section",
+        "label": "Supplier Info",
+        "children": [
+          {
+            "type": "text",
+            "id": "supplierName",
+            "label": "Contractor Name or Company"
+          },
+          {
+            "type": "instanceList",
+            "id": "supplierCategory",
+            "label": "Supplier Category",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% supplierCategoriesGET.data ?? [] %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcAgreementRequest.supplierCategoryID"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "supplier",
+            "label": "Existing Supplier",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% list:mapAttribute(suppliersGET.data, 'supplier') ?? [] %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcAgreementRequest.supplier.id"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "supplierCountry",
+            "label": "Supplier Country",
+            "values": "<% list:mapAttribute(countriesGET.data ?? [], 'country') %>",
+            "onChange": "<%
+              if (!empty(self.value)){
+                var countryData = countriesGET.data.find(x => {x.country.id == self.value[0]});
+                var thisCountryRegions = countryData.countryRegions ?? [];
+                if (!empty(thisCountryRegions)){
+                  supplierCountryRegion.setValues(thisCountryRegions);
+                  if (thisCountryRegions.size() == 1){
+                    supplierCountryRegion.setValue([thisCountryRegions[0].id]);
+                    supplierCountryRegion.setEnabled(false);
+                  } else {
+                    supplierCountryRegion.setValue([]);
+                    supplierCountryRegion.setEnabled(true);
+                  }
+                } else {
+                  supplierCountryRegion.setValues([]);
+                  supplierCountryRegion.setValue([]);
+                  supplierCountryRegion.setEnabled(false);
+                }
+              } else {
+                supplierCountryRegion.setValues([]);
+                supplierCountryRegion.setValue([]);
+                supplierCountryRegion.setEnabled(false);
+              }
+            %>"
+          },
+          {
+            "type": "text",
+            "id": "supplierAddressLine1",
+            "label": "Supplier Address Line 1"
+          },
+          {
+            "type": "text",
+            "id": "supplierAddressLine2",
+            "label": "Supplier Address Line 2"
+          },
+          {
+            "type": "text",
+            "id": "supplierCity",
+            "label": "Supplier City"
+          },
+          {
+            "type": "instanceList",
+            "id": "supplierCountryRegion",
+            "label": "Country Region",
+            "values": "<% [] %>",
+            "enabled": false
+          },
+          {
+            "type": "text",
+            "id": "supplierPhone",
+            "label": "Supplier Phone Number"
+          },
+          {
+            "type": "text",
+            "id": "supplierContaFirstName",
+            "label": "Contact First Name"
+          },
+          {
+            "type": "text",
+            "id": "supplierContactLastName",
+            "label": "Contact Last Name"
+          },
+          {
+            "type": "text",
+            "id": "supplierContactEmail",
+            "label": "Contact Email"
+          },
+          {
+            "type": "textArea",
+            "id": "supplierDescription",
+            "label": "Description"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Contract Info",
+        "children": [
+          {
+            "type": "text",
+            "id": "effectiveDate",
+            "label": "Effective Date",
+            "value": ""
+          },
+          {
+            "type": "checkBox",
+            "id": "subjectToHippaOrBaaRequired",
+            "label": "Subject To HIPPA or BAA Required?"
+          },
+          {
+            "type": "text",
+            "id": "registeredCompanyNumber",
+            "label": "Registered Company Number"
+          },
+          {
+            "type": "date",
+            "id": "contractStartDate",
+            "label": "Contract Start Date"
+          },
+          {
+            "type": "date",
+            "id": "contractEndDate",
+            "label": "Contract End Date"
+          },
+          {
+            "type": "text",
+            "id": "contractType",
+            "label": "Contract Type"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Organization Details",
+        "children": [
+          {
+            "type": "instanceList",
+            "id": "company",
+            "label": "Company",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% list:mapAttribute(companiesGET.data, 'company') ?? [] %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.company.id"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "restrictedToCompanies",
+            "label": "Restricted To Companies",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% list:mapAttribute(companiesGET.data, 'company') ?? [] %>",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "multiSelect": true,
+            "valuesOut": [
+              {
+                "value": "<% self.value?.map(selected => { return {'id': selected }}) ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.restrictedToCompanies"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "manager",
+            "label": "Manager",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% [] %>",
+            "searchEndPoint": "<% endpoints.workerSearchGETDeferred %>",
+            "searchResultValues": "<% workerSearchGETDeferred.data %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.manager.id"
+              }
+            ],
+            "onChange": "<% 
+              if (!empty(self.value)){
+                var deferred = supervisoryOrganizationsGETDeferred.invoke({'manager': self.value[0]});
+                var thisManagerSupervisoryOrganizations = !empty(deferred.data) ? list:mapAttribute(deferred.data, 'organization') : [];
+                console.debug('supervisoryOrganizations: ' + json:asJSON(thisManagerSupervisoryOrganizations));
+                if (!empty(thisManagerSupervisoryOrganizations)){
+                  supervisoryOrganization.setValues(thisManagerSupervisoryOrganizations);
+                  if (thisManagerSupervisoryOrganizations.size() == 1){
+                    supervisoryOrganization.setValue([thisManagerSupervisoryOrganizations[0].id]);
+                    supervisoryOrganization.setEnabled(false);
+                  } else {
+                    supervisoryOrganization.setValue([]);
+                    supervisoryOrganization.setEnabled(true);
+                  }
+                } else {
+                  supervisoryOrganization.setValues([]);
+                  supervisoryOrganization.setValue([]);
+                  supervisoryOrganization.setEnabled(false);
+                }
+              } else {
+                supervisoryOrganization.setValues([]);
+                supervisoryOrganization.setValue([]);
+                supervisoryOrganization.setEnabled(false);
+              }
+            %>"
+          },
+          {
+            "type": "instanceList",
+            "id": "supervisoryOrganization",
+            "label": "Supervisory Organization",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "enabled": false,
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% [] %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.supervisoryOrganization.id"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "costCenter",
+            "label": "Cost Center",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% costCentersGET.data ?? [] %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.costCenter.id"
+              }
+            ]
+          },
+          {
+            "type": "instanceList",
+            "id": "brgBusinessUnit",
+            "label": "Brg Business Unit",
+            "idKey": "id",
+            "displayKey": "descriptor",
+            "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+            "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+            "values": "<% list:mapAttribute(brgBusinessUnitsGET.data ?? [], 'planDimension') %>",
+            "valuesOut": [
+              {
+                "value": "<% self.value[0] ?? null %>",
+                "valueOutBinding": "createIcOrganizationDetail.brgBusinessUnit.id"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Tax Details",
+        "children": [
+          {
+            "type": "text",
+            "id": "1099Status",
+            "label": "1099 Status",
+            "value": ""
+          },
+          {
+            "type": "text",
+            "id": "taxAuthorityFormType",
+            "label": "Tax Authority Form Type"
+          },
+          {
+            "type": "text",
+            "id": "tinType",
+            "label": "TIN Type"
+          },
+          {
+            "type": "text",
+            "id": "taxID",
+            "label": "Tax ID"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Task Orders",
+        "children": [
+          {
+            "type": "dropdown",
+            "id": "taskOrderType",
+            "label": "Type of Task Order",
+            "values": "<% taskOrderTypesGET.data ?? [] %>"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Additional Info",
+        "children": [
+          {
+            "type": "text",
+            "id": "hippaInformation",
+            "label": "Hippa Amendment",
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "title": {
+      "type": "title",
+      "label": "IC Agreement/Task Order"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "welcomeWidget",
+          "label": "",
+          "enabled": false,
+          "value": "Welcome"
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "children": [
+        {
+          "type": "richText",
+          "enabled": "false",
+          "value": ""
+        }
+      ]
+    },
+    "pageType": "EDIT"
+  }
+}

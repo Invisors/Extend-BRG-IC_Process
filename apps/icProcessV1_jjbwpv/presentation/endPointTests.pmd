@@ -1,0 +1,134 @@
+{
+  "id": "endPointTests",
+  "endPoints": [
+    {
+      "name": "allCurrencies",
+      "url": "https://api.workday.com/referenceData/currency/vers/latest/items?pageLimit=999",
+      "authType": "sso"
+    },
+    {
+      "name": "getPaymentTypes",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of PaymentType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/paymentTypes` %>"
+    },
+    {
+      "name": "currentWorkerGET",
+      "url": "workers/me",
+      "authType": "sso",
+      "baseUrlType": "staffing",
+      "bestEffort": true,
+      "ignoreFailures": [
+        {
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "initiatorDetail",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT cf_CF_WorkersBusinessUnitLO FROM workersForHCMReporting (dataSourceFilter=allActiveWorkers) WHERE worker in ({{currentWorkerGET.id}})`) %>",
+      "authType": "sso",
+      "exclude": "<% empty currentWorkerGET.id %>"
+    },
+    {
+      "name": "companiesGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT company, addressPrimary, publicAddresses FROM companies ` + (!empty(attrstore.CompanyIds) ? ('WHERE company in (' + attrstore.CompanyIds + ')') : '') + ` ORDER BY company`) %>",
+      "authType": "sso",
+      "exclude": true
+    },
+    {
+      "name": "supplierCategoriesGET",
+      "url": "<% 'GetReferences/launch?type=Supplier_Category_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs"
+    },
+    {
+      "name": "costCentersGET",
+      "url": "<% 'GetReferences/launch?type=Cost_Center_Reference_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs",
+      "exclude": true
+    },
+    {
+      "name": "brgBusinessUnitsGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT planDimension FROM allBudgetDimensionByType (BudgetDimensionTypeForIntegration = ({{attrstore.BRGBusinessUnitReferenceIDType}})) ORDER BY planDimension`) %>",
+      "authType": "sso",
+      "exclude": "<% empty(attrstore.BRGBusinessUnitReferenceIDType) %>"
+    },
+    {
+      "name": "countriesGET",
+      "baseUrlType": "WQL",
+      "authType": "sso",
+      "url": "<% '/data?query=' + string:urlEncode('SELECT country, countryRegions FROM countries ORDER BY country') %>"
+    },
+    {
+      "name": "taskOrderTypesGET",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of TaskOrderType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/taskOrderTypes` %>"
+    },
+    {
+      "name": "getOffices",
+      "baseUrlType": "WQL",
+      "url": "<% 
+              var query  = 'SELECT workdayID as id, name as descriptor FROM customOrganizations ';
+              var whereClause = 'WHERE type1 in (1afee0217ef21000c8482706f4500000) AND inactive != true';
+              query = query + whereClause;
+              //console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+            %>",
+      "authType": "sso",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "name": "getBrgBillingTitles",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of BrgBillingTitle business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/icProcessV1_jjbwpv/v1/brgBillingTitles` %>"
+    }
+  ],
+  "presentation": {
+    "title": {
+      "type": "title",
+      "label": "Workday Extend"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "hello",
+          "label": "Hello World!",
+          "value": "<% empty initiatorDetail ? '' : initiatorDetail  %>"
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "children": [
+        {
+          "type": "richText",
+          "enabled": "false",
+          "value": "Powered By Workday Extend"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "BRGBusinessUnitReferenceIDType",
+    "type": "string",
+    "alias": "BRGBusinessUnitReferenceIDType"
+  },
+  {
+    "name": "ProjectReferenceIDType",
+    "type": "string",
+    "alias": "ProjectReferenceIDType"
+  }
+]

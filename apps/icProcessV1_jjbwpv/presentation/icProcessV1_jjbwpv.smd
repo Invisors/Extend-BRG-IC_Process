@@ -1,0 +1,28 @@
+{
+  "id": "icProcessV1_jjbwpv",
+  "languages": [
+    {
+      "code": "en-US",
+      "description": "English"
+    }
+  ],
+  "siteAuth": {
+    "authTypes": [
+      {
+        "scheme": "SSO",
+        "id": "sso"
+      },
+      {
+        "scheme": "WCPISU",
+        "id": "wcpisu",
+        "appId": "icProcessV1_jjbwpv",
+        "tokenHolder": "wcpisu_icrequests",
+        "checkEnvironment": true
+      }
+    ]
+  },
+  "siteId": "icProcessV1_jjbwpv",
+  "cdnEnabled": true,
+  "siteProperties": [ ],
+  "applicationId": "icProcessV1_jjbwpv"
+}

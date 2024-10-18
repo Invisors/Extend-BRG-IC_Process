@@ -1,0 +1,36 @@
+{
+  "id": "confirm",
+  "endPoints": [ ],
+  "presentation": {
+    "title": {
+      "type": "title",
+      "label": "Submission Confirmed"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "confirm",
+          "value": "The request has been successfully submitted."
+        },
+        {
+          "type": "externalLink",
+          "descriptor": "IC Request Report",
+          "url": "<% '/' + tenant + '/d/task/1422$2805.htmld' %>"
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "children": [
+        {
+          "type": "richText",
+          "enabled": "false",
+          "value": "Powered By Workday Extend"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "name": "CreateIcAgreementRequest",
+  "label": "Request Independent Contractor IC Agreement and Task Order TO",
+  "securityDomains": [
+    "SetupICProcess"
+  ],
+  "routePath": "/createIcAgreementRequest"
+}

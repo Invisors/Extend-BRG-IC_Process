@@ -1,0 +1,1277 @@
+{
+  "id": "createIcAgreementRequest",
+  "_generationNote": "This page creates a single instance of the IcAgreementRequest object. You can use this page as a starting template for building an end-user page, or used as an administration page to create new instances.",
+  "endPoints": [
+    {
+      "name": "allCurrencies",
+      "url": "https://api.workday.com/referenceData/currency/vers/latest/items?pageLimit=999",
+      "authType": "sso"
+    },
+    {
+      "name": "getPaymentTypes",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of PaymentType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/paymentTypes` %>"
+    },
+    {
+      "name": "currentWorkerGET",
+      "url": "workers/me",
+      "authType": "sso",
+      "baseUrlType": "staffing",
+      "bestEffort": true,
+      "ignoreFailures": [
+        {
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "initiatorDetail",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT cf_CF_WorkersBusinessUnitLO FROM workersForHCMReporting (dataSourceFilter=allActiveWorkers) WHERE worker in ({{currentWorkerGET.id}})`) %>",
+      "authType": "sso",
+      "exclude": "<% empty currentWorkerGET.id %>"
+    },
+    {
+      "name": "companiesGET",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT company, addressPrimary, publicAddresses FROM companies ` + (!empty(attrstore.CompanyIds) ? ('WHERE company in (' + attrstore.CompanyIds + ')') : '') + ` ORDER BY company`) %>",
+      "authType": "sso",
+      "exclude": true
+    },
+    {
+      "name": "supplierCategoriesGET",
+      "url": "<% 'GetReferences/launch?type=Supplier_Category_ID' %>",
+      "authType": "wcpisu",
+      "baseUrlType": "orcs"
+    },
+    {
+      "name": "costCentersGET",
+      "url": "<% 'GetReferences/launch?type=Cost_Center_Reference_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs",
+      "exclude": true
+    },
+    {
+      "name": "brgBusinessUnitsGET",
+      "baseUrlType": "WQL",
+      "url": "<% //'/data?query=' + string:urlEncode(`SELECT planDimension FROM allBudgetDimensionByType (BudgetDimensionTypeForIntegration = ({{attrstore.BRGBusinessUnitReferenceIDType}})) ORDER BY planDimension`) 
+        '/data?query=' + string:urlEncode(`SELECT workdayID as id, organizationDisplayIDIndexed as descriptor FROM customOrganizations WHERE`)
+      %>",
+      "authType": "sso",
+      "exclude": "<% empty(attrstore.BRGBusinessUnitReferenceIDType) %>"
+    },
+    {
+      "name": "searchSupplier",
+      "baseUrlType": "WQL",
+      "deferred": true,
+      "url": "<% 
+              if(!empty instanceListQuery) {
+                var query  = 'SELECT workdayID as id, supplierName as descriptor, supplierID FROM supplier (dataSourceFilter=suppliers) ';
+                var whereClause = 'WHERE supplierName CONTAINS \"';
+                var input = instanceListQuery.split('+').join('\" AND supplierName CONTAINS \"');
+                whereClause = whereClause + input;
+                query = query + whereClause + '\"';
+                //console.info('QUERY: ' + query);
+                return '/data?query=' + string:urlEncode(query);
+              } else if(!empty supName){
+                var query  = 'SELECT workdayID as id, supplierName as descriptor, supplierID FROM supplier (dataSourceFilter=suppliers) ';
+                var whereClause = 'WHERE supplierName CONTAINS \"' + supName + '\"';
+                query = query + whereClause;
+                return '/data?query=' + string:urlEncode(query);
+              }
+            %>",
+      "authType": "sso",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "name": "suppDetail",
+      "baseUrlType": "WQL",
+      "deferred": true,
+      "url": "<% 
+                var query  = 'SELECT workdayID as id, supplierName as descriptor, supplierID, supplierCategory, defaultAddressForSupplier{country, addressLine1, addressLine2, city, countryRegion1}, supplierContactsForSupplier FROM supplier (dataSourceFilter=suppliers) ';
+                var whereClause = 'WHERE supplier IN (' + supp + ')';
+                query = query + whereClause;
+                //console.info('QUERY: ' + query);
+                return '/data?query=' + string:urlEncode(query);
+            %>",
+      "authType": "wcpisu",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "name": "suppContact",
+      "baseUrlType": "WQL",
+      "deferred": true,
+      "url": "<% 
+                var query  = 'SELECT workdayID as id, name as descriptor, globalPersonNames{firstName,lastName}, defaultEmailAddress1 FROM supplierContactsIndexed (dataSourceFilter=supplierContactsFilter) ';
+                var whereClause = 'WHERE supplier IN (' + supp + ')';
+                query = query + whereClause;
+                //console.info('QUERY: ' + query);
+                return '/data?query=' + string:urlEncode(query);
+            %>",
+      "authType": "wcpisu",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "baseUrlType": "WQL",
+      "name": "searchProj",
+      "url": "<%
+              var query  = 'SELECT workdayID as id, cf_CFConcatProjectIDAndName as descriptor FROM projects(dataSourceFilter=projectsByProjectsProjectHierarchiesFilter,projectsAndProjectHierarchies = (7b1a150f5bb21000d5161e6eada20000),includeSubordinateProjectHierarchies=true) ';
+              var whereClause = 'WHERE cf_CFConcatProjectIDAndName CONTAINS \"';
+              var input = instanceListQuery.split('+').join('\" AND cf_CFConcatProjectIDAndName CONTAINS \"');
+              whereClause = whereClause + input;
+              query = query + whereClause + '\"';
+              console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+              %>",
+      "authType": "wcpisu",
+      "deferred": true,
+      "exclude": "<% empty instanceListQuery %>",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        },
+        {
+          "code": 404
+        },
+        {
+          "code": 500
+        }
+      ]
+    },
+    {
+      "name": "searchBU",
+      "baseUrlType": "WQL",
+      "deferred": true,
+      "url": "<% 
+              var query  = 'SELECT workdayID as id, organizationDisplayIDIndexed as descriptor FROM customOrganizations  ';
+              var whereClause = 'WHERE type1 in (1afee0217ef21000c84824036ddb0000) AND isOrganizationActiveOrHasActiveDescendants = true AND organizationDisplayIDIndexed CONTAINS \"';
+              var input = instanceListQuery.split('+').join('\" AND organizationDisplayIDIndexed CONTAINS \"');
+              whereClause = whereClause + input;
+              query = query + whereClause + '\"';
+              //console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+            %>",
+      "authType": "sso",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "baseUrlType": "WQL",
+      "name": "getProjectDetails",
+      "url": "<%
+              var query  = 'SELECT workdayID as id, projectName as descriptor, billable, customOrganization01, customerAsWorktag FROM projects(dataSourceFilter=projectsByProjectsProjectHierarchiesFilter,projectsAndProjectHierarchies = (' + proj + ')) ';
+              console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+              %>",
+      "authType": "wcpisu",
+      "deferred": true,
+      "exclude": "<% empty instanceListQuery %>",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        },
+        {
+          "code": 404
+        },
+        {
+          "code": 500
+        }
+      ]
+    },
+    {
+      "name": "workerSearchGETDeferred",
+      "url": "<% 'workers?search=' + instanceListQuery %>",
+      "deferred": true,
+      "exclude": "<% empty(instanceListQuery) %>",
+      "authType": "sso",
+      "baseUrlType": "staffing"
+    },
+    {
+      "name": "supervisoryOrganizationsGETDeferred",
+      "url": "<% '/data?query=' + string:pathEncode('SELECT organization FROM supervisoryOrganizations WHERE supervisoryManager IN (' + manager + ') ORDER BY name') %>",
+      "deferred": true,
+      "exclude": "<% empty(manager) %>",
+      "baseUrlType": "WQL"
+    },
+    {
+      "name": "countriesGET",
+      "baseUrlType": "WQL",
+      "authType": "wcpisu",
+      "url": "<% '/data?query=' + string:urlEncode('SELECT country, countryRegions FROM countries ORDER BY country') %>"
+    },
+    {
+      "name": "taskOrderTypesGET",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of TaskOrderType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/taskOrderTypes` %>"
+    },
+    {
+      "name": "getOffices",
+      "baseUrlType": "WQL",
+      "url": "<% 
+              var query  = 'SELECT workdayID as id, name as descriptor FROM customOrganizations ';
+              var whereClause = 'WHERE type1 in (1afee0217ef21000c8482706f4500000) AND inactive != true';
+              query = query + whereClause;
+              //console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+            %>",
+      "authType": "sso",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        }
+      ]
+    },
+    {
+      "baseUrlType": "WQL",
+      "name": "searchCW",
+      "url": "<%  
+              if(!empty instanceListQuery){
+                var query  = 'SELECT worker, workdayID as id, nameInGeneralDisplayFormat as descriptor FROM allContingentWorkers ';
+                var whereClause = 'WHERE nameInGeneralDisplayFormat CONTAINS \"';
+                var input = instanceListQuery.split('+').join('\" AND nameInGeneralDisplayFormat CONTAINS \"');
+                whereClause = whereClause + input + '\"';
+                query = query + whereClause;
+              } else {
+                var query  = 'SELECT workdayID as id, nameInGeneralDisplayFormat as descriptor, workerStandardCostRate, cf_CF_StandardBillingRateLRV, businessTitle, primaryEmailAddress FROM allContingentWorkers ';
+                var whereArr = [];
+                if(!empty first){
+                  whereArr.add('firstName CONTAINS \"' + first + '\"');
+                }
+                if(!empty last){
+                  whereArr.add('lastName CONTAINS \"' + last + '\"')
+                }
+                if(!empty email){
+                  whereArr.add('primaryEmailAddress CONTAINS \"' + email + '\"');
+                }
+                var whereClause = 'WHERE ' + whereArr.join(' AND ');
+                query = query + whereClause;
+              }
+              console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+              %>",
+      "authType": "sso",
+      "deferred": true,
+      "exclude": "<% empty instanceListQuery %>",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        },
+        {
+          "code": 404
+        },
+        {
+          "code": 500
+        }
+      ]
+    },
+    {
+      "baseUrlType": "WQL",
+      "name": "cwDetail",
+      "url": "<%
+              var query  = 'SELECT workdayID as id, nameInGeneralDisplayFormat as descriptor, firstName, lastName, primaryEmailAddress, businessTitle, jobProfile, primaryHomeAddress{country, addressLine1, addressLine2, city, countryRegion1} FROM allContingentWorkers ';
+              var whereClause = 'WHERE worker IN (' + cw + ')';
+              query = query + whereClause;
+              console.info('QUERY: ' + query);
+              return '/data?query=' + string:urlEncode(query);
+              %>",
+      "authType": "wcpisu",
+      "deferred": true,
+      "exclude": "<% empty instanceListQuery %>",
+      "failOnStatusCodes": [
+        {
+          "code": 400
+        },
+        {
+          "code": 403
+        },
+        {
+          "code": 404
+        },
+        {
+          "code": 500
+        }
+      ]
+    },
+    {
+      "name": "getBrgBillingTitles",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of BrgBillingTitle business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/icProcessV1_jjbwpv/v1/brgBillingTitles` %>"
+    }
+  ],
+  "securityDomains": [ ],
+  "script": "",
+  "presentation": {
+    "preferredLabelPosition": "aside",
+    "pageType": "edit",
+    "title": {
+      "type": "title",
+      "id": "title",
+      "label": "Request Independent Contractor Agreement and Task Order"
+    },
+    "body": {
+      "type": "basicFormLayout",
+      "sections": [
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Supplier Info",
+              "children": [
+                {
+                  "type": "textArea",
+                  "id": "debug",
+                  "enabled": false
+                },
+                {
+                  "type": "text",
+                  "id": "supplierName",
+                  "label": "Contractor Name or Supplier Name",
+                  "required": true,
+                  "guide": {
+                    "type": "guide",
+                    "text": "Entity or person that BRG will pay. The name of the IC's individual or entity written in the agreement will need to match the invoice and bank account."
+                  },
+                  "helpText": "Entity or person that BRG will pay. The name of the IC's individual or entity written in the agreement will need to match the invoice and bank account.",
+                  "onChange": "<% 
+                    if(!empty self.value) {
+                      supplier.setRequired(false);
+                      var supMatch = searchSupplier.invoke({'supName': self.value});
+                      //debug.value = json:asJSON(supMatch.data);
+                      if(!empty supMatch.data){
+                        supplierMatchGrid.setVisible(true);
+                        supplierMatchGrid.setRows(supMatch.data);
+                        //debug.value = json:asJSON(supMatch.data);
+                        }
+                    }
+                   %>",
+                  "valueOutBinding": "createIcAgreementRequest.supplierName"
+                },
+                {
+                  "type": "text",
+                  "enabled": false,
+                  "value": "Entity or person that BRG will pay. The name of the IC's individual or entity written in the agreement will need to match the invoice and bank account."
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplier",
+                  "label": "Existing Supplier",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "required": true,
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% [] //list:mapAttribute(suppliersGET.data, 'supplier') ?? [] 
+                  %>",
+                  "searchEndPoint": "<% endpoints.searchSupplier %>",
+                  "searchResultValues": "<% searchSupplier.data %>",
+                  "_valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcAgreementRequest.supplier.id"
+                    }
+                  ],
+                  "onChange": "<%
+                    //m2
+                    if (!empty(self.value)){
+                      supplierName.setRequired(false);
+                      var sup = suppDetail.invoke({'supp': self.value[0]}).data[0];
+                      var contact = null;
+                      if(!empty sup.supplierContactsForSupplier) {
+                        contact = suppContact.invoke({'supp': self.value[0]}).data[0];
+                      }
+                      supplierContactFirstName.value = contact?.globalPersonNames[0].firstName;
+                      supplierContactLastName.value = contact?.globalPersonNames[0].lastName;
+                      supplierContactEmail.value = contact?.defaultEmailAddress1;
+                      supplierCategory.setValues(!empty sup.supplierCategory ? [sup.supplierCategory] :[] );
+                      supplierCategory.setValue(!empty sup.supplierCategory ? [sup.supplierCategory.id] :[] );
+                      supplierCategory.setEnabled(false);
+                      supplierCategory.setRequired(false);
+                      supplierCountry.setValues(!empty sup.defaultAddressForSupplier?.country ? [sup.defaultAddressForSupplier.country] :[] );
+                      supplierCountry.setValue(!empty sup.defaultAddressForSupplier?.country ? [sup.defaultAddressForSupplier.country.id] :[] );
+                      //supplierCountry.setEnabled(false);
+                      supplierAddressLine1.value = sup?.defaultAddressForSupplier?.addressLine1;
+                      //supplierAddressLine1.setEnabled(false);
+                      supplierAddressLine2.value = sup?.defaultAddressForSupplier?.addressLine2;
+                      //supplierAddressLine2.setEnabled(false);
+                      supplierCity.value = sup?.defaultAddressForSupplier?.city;
+                      //supplierCity.setEnabled(false);
+                      supplierCountryRegion.setValues(!empty sup.defaultAddressForSupplier?.countryRegion1 ? [sup.defaultAddressForSupplier.countryRegion1] :[] );
+                      supplierCountryRegion.setValue(!empty sup.defaultAddressForSupplier?.countryRegion1 ? [sup.defaultAddressForSupplier.countryRegion1.id] :[] );
+                      supplierCountryRegion.setEnabled(true);
+                      //newSupplierDetails.setVisible(false);
+                    } else {
+                      supplierName.setRequired(true);
+                      //newSupplierDetails.setVisible(true);
+                      supplierContactFirstName.value = '';
+                      supplierContactLastName.value = '';
+                      supplierContactEmail.value = '';
+                      supplierCategory.setValues([]);
+                      supplierCategory.setValue([]);
+                      supplierCategory.setEnabled(true);
+                      supplierCategory.setRequired(true);
+                      supplierCountry.setValues(list:mapAttribute(countriesGET.data ?? [], 'country'));
+                      supplierCountry.setValue([]);
+                      //supplierCountry.setEnabled(true);
+                      supplierAddressLine1.value = '';
+                      //supplierAddressLine1.setEnabled(true);
+                      supplierAddressLine2.value = '';
+                      //supplierAddressLine2.setEnabled(true);
+                      supplierCity.value = '';
+                      //supplierCity.setEnabled(true);
+                      supplierCountryRegion.setValues([]);
+                      supplierCountryRegion.setValue([]);
+                      //supplierCountryRegion.setEnabled(false);
+                    }
+                  %>",
+                  "valueOutBinding": "createIcAgreementRequest.supplier"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "id": "supplierMatchGrid",
+              "label": "Supplier Match Potentials",
+              "rows": "<% [] %>",
+              "rowVariableName": "row",
+              "doNotAdd": true,
+              "doNotRemove": true,
+              "visible": false,
+              "columns": [
+                {
+                  "type": "column",
+                  "label": "Use Match",
+                  "columnId": "useSupplierMatchCol",
+                  "cellTemplate": {
+                    "type": "fieldSet",
+                    "children": [
+                      {
+                        "type": "hidden",
+                        "id": "hrSuppInstance",
+                        "value": "<% {'id': row?.id, 'descriptor': row?.descriptor} %>"
+                      },
+                      {
+                        "type": "pageActionButton",
+                        "id": "useThisSuppMatch",
+                        "visible": true,
+                        "label": "Use This Match",
+                        "onClick": "<%
+                                  supplier.setValues(!empty hrSuppInstance.value ? [hrSuppInstance.value] : []);
+                                  supplier.setValue(!empty hrSuppInstance.value ? [hrSuppInstance.value.id] : []);
+                                  var sup = suppDetail.invoke({'supp': hrSuppInstance.value.id}).data[0];
+                                  var contact = null;
+                                  if(!empty sup.supplierContactsForSupplier) {
+                                    contact = suppContact.invoke({'supp': hrSuppInstance.value.id}).data[0];
+                                  }
+                                  supplierContactFirstName.value = contact?.globalPersonNames[0].firstName;
+                                  supplierContactLastName.value = contact?.globalPersonNames[0].lastName;
+                                  supplierContactEmail.value = contact?.defaultEmailAddress1;
+                                  supplierCategory.setValues(!empty sup.supplierCategory ? [sup.supplierCategory] :[] );
+                                  supplierCategory.setValue(!empty sup.supplierCategory ? [sup.supplierCategory.id] :[] );
+                                  supplierCategory.setEnabled(false);
+                                  supplierCountry.setValues(!empty sup.defaultAddressForSupplier?.country ? [sup.defaultAddressForSupplier.country] :[] );
+                                  supplierCountry.setValue(!empty sup.defaultAddressForSupplier?.country ? [sup.defaultAddressForSupplier.country.id] :[] );
+                                  //supplierCountry.setEnabled(false);
+                                  supplierAddressLine1.value = sup?.defaultAddressForSupplier?.addressLine1;
+                                  //supplierAddressLine1.setEnabled(false);
+                                  supplierAddressLine2.value = sup?.defaultAddressForSupplier?.addressLine2;
+                                  //supplierAddressLine2.setEnabled(false);
+                                  supplierCity.value = sup?.defaultAddressForSupplier?.city;
+                                  //supplierCity.setEnabled(false);
+                                  supplierCountryRegion.setValues(!empty sup.defaultAddressForSupplier?.countryRegion1 ? [sup.defaultAddressForSupplier.countryRegion1] :[] );
+                                  supplierCountryRegion.setValue(!empty sup.defaultAddressForSupplier?.countryRegion1 ? [sup.defaultAddressForSupplier.countryRegion1.id] :[] );
+                                  supplierCountryRegion.setEnabled(true);
+                                  supplierMatchGrid.setVisible(false);
+                                  %>"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Existing Supplier",
+                  "columnId": "existingSupp",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "icDescriptorNoTO",
+                    "enabled": false,
+                    "value": "<% row?.descriptor %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Supplier ID",
+                  "columnId": "existingIDCol",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "existingSuppID",
+                    "enabled": false,
+                    "value": "<% row?.supplierID %>"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "newSupplierDetails",
+              "type": "fieldSet",
+              "title": "New Supplier Details",
+              "children": [
+                {
+                  "type": "instanceList",
+                  "id": "supplierCategory",
+                  "label": "Supplier Category",
+                  "required": true,
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "values": "<% supplierCategoriesGET.data ?? [] %>",
+                  "_valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcAgreementRequest.supplierCategoryID"
+                    }
+                  ],
+                  "valueOutBinding": "createIcAgreementRequest.supplierCategoryID"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactFirstName",
+                  "label": "Contact First Name",
+                  "required": true,
+                  "valueOutBinding": "createIcAgreementRequest.supplierContactFirstName"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactLastName",
+                  "label": "Contact Last Name",
+                  "required": true,
+                  "valueOutBinding": "createIcAgreementRequest.supplierContactLastName"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactEmail",
+                  "label": "Contact Email",
+                  "required": true,
+                  "guide": {
+                    "type": "guide",
+                    "text": "This contact and email will be setup with access and email to submit the Invoice directly into Workday"
+                  },
+                  "helpText": "This contact and email will be setup with access and email to submit the Invoice directly into Workday",
+                  "valueOutBinding": "createIcAgreementRequest.supplierContactEmail",
+                  "onChange": "<%
+                    if(!empty self.value){
+                      if(!validate:match('^([a-zA-Z0-9.]+)@([a-zA-Z0-9.]+).([a-zA-Z]{2,5})$',self.value)){
+                        self.setError('Enter a valid email format');
+                      } else {
+                        self.clearError();}
+                    } else {
+                      self.clearError();
+                    } 
+                  %>"
+                },
+                {
+                  "type": "text",
+                  "enabled": false,
+                  "value": "This contact and email will be setup with access and email to submit the Invoice directly into Workday."
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplierCountry",
+                  "label": "Supplier Country",
+                  "required": true,
+                  "values": "<% list:mapAttribute(countriesGET.data ?? [], 'country') %>",
+                  "onChange": "<%
+                    if (!empty(self.value)){
+                      var countryData = countriesGET.data.find(x => {x.country.id == self.value[0]});
+                      var thisCountryRegions = countryData.countryRegions ?? [];
+                      if (!empty(thisCountryRegions)){
+                        supplierCountryRegion.setValues(thisCountryRegions);
+                        if (thisCountryRegions.size() == 1){
+                          supplierCountryRegion.setValue([thisCountryRegions[0].id]);
+                          supplierCountryRegion.setEnabled(false);
+                        } else {
+                          supplierCountryRegion.setValue([]);
+                          supplierCountryRegion.setEnabled(true);
+                        }
+                      } else {
+                        supplierCountryRegion.setValues([]);
+                        supplierCountryRegion.setValue([]);
+                        supplierCountryRegion.setEnabled(false);
+                      }
+                    } else {
+                      supplierCountryRegion.setValues([]);
+                      supplierCountryRegion.setValue([]);
+                      supplierCountryRegion.setEnabled(false);
+                    }
+                  %>",
+                  "valueOutBinding": "createIcAgreementRequest.supplierCountry.id"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierAddressLine1",
+                  "required": true,
+                  "label": "Supplier Address Line 1",
+                  "valueOutBinding": "createIcAgreementRequest.supplierAddressLine1"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierAddressLine2",
+                  "label": "Supplier Address Line 2",
+                  "valueOutBinding": "createIcAgreementRequest.supplierAddressLine2"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierCity",
+                  "required": true,
+                  "label": "Supplier City",
+                  "valueOutBinding": "createIcAgreementRequest.supplierCity"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplierCountryRegion",
+                  "label": "Country Region",
+                  "required": true,
+                  "values": "<% [] %>",
+                  "enabled": false,
+                  "valueOutBinding": "createIcAgreementRequest.supplierCountryRegion.id"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierPhone",
+                  "label": "Supplier Phone Number",
+                  "required": true,
+                  "onChange": "<% if(!empty self.value){
+                      if(!validate:match('^[+]?[(]?[0-9]{3}[)]?[- .]?[0-9]{3}[- .]?[0-9]{4,6}$',self.value)){
+                        self.setError('Please enter a valid phone number format');
+                      } else {
+                        self.clearError();
+                      }
+                    } else {
+                      self.clearError();
+                    } 
+                  %>",
+                  "valueOutBinding": "createIcAgreementRequest.supplierPhone"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Contract Info",
+              "children": [
+                {
+                  "type": "textArea",
+                  "id": "supplierDescription",
+                  "required": true,
+                  "label": "Expertise/Background & Description of Services to be Provided",
+                  "valueOutBinding": "createIcAgreementRequest.description"
+                },
+                {
+                  "type": "checkBox",
+                  "id": "subjectToHippaOrBaaRequired",
+                  "label": "Will the Contractor's work be subject to HIPAA or require entry of a BAA?",
+                  "valueOutBinding": "createIcAgreementRequest.subjectToHIPPAOrBAARequired"
+                },
+                {
+                  "type": "text",
+                  "id": "registeredCompanyNumber",
+                  "label": "(IF BRG UK) Registered Company Number",
+                  "required": true,
+                  "valueOutBinding": "createIcAgreementRequest.registeredCompanyNumber",
+                  "onChange": "<% 
+                  if(!empty self.value){
+                    if(!validate:match('^[0-9]{9}$',self.value)){
+                      self.setError('Company Number must be a 9-digit value');
+                    } else {
+                      self.clearError();
+                    }
+                  } else {
+                    self.clearError();
+                  }
+                   %>"
+                },
+                {
+                  "type": "date",
+                  "id": "effectiveDate",
+                  "label": "Effective Date",
+                  "required": true,
+                  "value": "",
+                  "valueOutBinding": "createIcAgreementRequest.effectiveDate"
+                },
+                {
+                  "type": "date",
+                  "id": "contractStartDate",
+                  "label": "Contract Start Date",
+                  "required": true,
+                  "valueOutBinding": "createIcAgreementRequest.contractStartDate"
+                },
+                {
+                  "type": "date",
+                  "id": "contractEndDate",
+                  "label": "Contract End Date",
+                  "required": true,
+                  "valueOutBinding": "createIcAgreementRequest.contractEndDate"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "render": false,
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Organization Details",
+              "children": [
+                {
+                  "type": "instanceList",
+                  "id": "company",
+                  "label": "Company",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% list:mapAttribute(companiesGET.data, 'company') ?? [] %>",
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.company.id"
+                    }
+                  ]
+                },
+                {
+                  "type": "instanceList",
+                  "id": "restrictedToCompanies",
+                  "label": "Restricted To Companies",
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% list:mapAttribute(companiesGET.data, 'company') ?? [] %>",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "multiSelect": true,
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value?.map(selected => { return {'id': selected }}) ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.restrictedToCompanies"
+                    }
+                  ]
+                },
+                {
+                  "type": "instanceList",
+                  "id": "manager",
+                  "label": "Manager",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% [] %>",
+                  "searchEndPoint": "<% endpoints.workerSearchGETDeferred %>",
+                  "searchResultValues": "<% workerSearchGETDeferred.data %>",
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.manager.id"
+                    }
+                  ],
+                  "onChange": "<% 
+                    if (!empty(self.value)){
+                      var deferred = supervisoryOrganizationsGETDeferred.invoke({'manager': self.value[0]});
+                      var thisManagerSupervisoryOrganizations = !empty(deferred.data) ? list:mapAttribute(deferred.data, 'organization') : [];
+                      console.debug('supervisoryOrganizations: ' + json:asJSON(thisManagerSupervisoryOrganizations));
+                      if (!empty(thisManagerSupervisoryOrganizations)){
+                        supervisoryOrganization.setValues(thisManagerSupervisoryOrganizations);
+                        if (thisManagerSupervisoryOrganizations.size() == 1){
+                          supervisoryOrganization.setValue([thisManagerSupervisoryOrganizations[0].id]);
+                          supervisoryOrganization.setEnabled(false);
+                        } else {
+                          supervisoryOrganization.setValue([]);
+                          supervisoryOrganization.setEnabled(true);
+                        }
+                      } else {
+                        supervisoryOrganization.setValues([]);
+                        supervisoryOrganization.setValue([]);
+                        supervisoryOrganization.setEnabled(false);
+                      }
+                    } else {
+                      supervisoryOrganization.setValues([]);
+                      supervisoryOrganization.setValue([]);
+                      supervisoryOrganization.setEnabled(false);
+                    }
+                  %>"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supervisoryOrganization",
+                  "label": "Supervisory Organization",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "enabled": false,
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% [] %>",
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.supervisoryOrganization.id"
+                    }
+                  ]
+                },
+                {
+                  "type": "instanceList",
+                  "id": "costCenter",
+                  "label": "Cost Center",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% costCentersGET.data ?? [] %>",
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.costCenter.id"
+                    }
+                  ]
+                },
+                {
+                  "type": "instanceList",
+                  "id": "brgBusinessUnit",
+                  "label": "Brg Business Unit",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+                  "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+                  "values": "<% list:mapAttribute(brgBusinessUnitsGET.data ?? [], 'planDimension') %>",
+                  "valuesOut": [
+                    {
+                      "value": "<% self.value[0] ?? null %>",
+                      "valueOutBinding": "createIcOrganizationDetail.brgBusinessUnit.id"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "render": false,
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Tax Details",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "status1099",
+                  "label": "1099 Status",
+                  "value": ""
+                },
+                {
+                  "type": "text",
+                  "id": "taxAuthorityFormType",
+                  "label": "Tax Authority Form Type"
+                },
+                {
+                  "type": "text",
+                  "id": "tinType",
+                  "label": "TIN Type"
+                },
+                {
+                  "type": "text",
+                  "id": "taxID",
+                  "label": "Tax ID"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "render": false,
+          "children": [
+            {
+              "type": "fieldSet",
+              "id": "additionalDetails",
+              "label": "Additional Details",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hippaAmendment",
+                  "label": "hippaAmendment"
+                },
+                {
+                  "type": "text",
+                  "id": "icdbNotes",
+                  "label": "ICDB Notes"
+                }
+              ],
+              "title": "Additional Details"
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "id": "agreementSigned",
+          "render": false,
+          "children": [
+            {
+              "type": "checkBox",
+              "id": "signed",
+              "label": "Signed?"
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Task Order",
+              "children": [
+                {
+                  "type": "dropdown",
+                  "id": "taskOrderType",
+                  "label": "Type of Task Order",
+                  "required": true,
+                  "values": "<% taskOrderTypesGET.data ?? [] %>",
+                  "onChange": "<%
+                    if (!empty(self.selectedEntries)){
+                      if (self.selectedEntries[0].descriptor == 'Hourly'){
+                        dynamicTO.data = 'hourly';
+                      } else if (self.selectedEntries[0].descriptor == 'Fixed Fee') {
+                        dynamicTO.data = 'fixed';
+                      } else if (self.selectedEntries[0].descriptor == 'Monthly Retainer') {
+                        dynamicTO.data = 'monthly';
+                      } else if(self.selectedEntries[0].descriptor == 'No TO' || self.selectedEntries[0].descriptor == 'Referral - No TO' || self.selectedEntries[0].descriptor == 'Pass Through - No TO' || self.selectedEntries[0].descriptor == 'Affiliate - No TO') {
+                        dynamicTO.data = 'none';
+                      } else {
+                        dynamicTO.data = '';
+                      }
+                    } else {
+                      dynamicTO.data = '';
+                    }
+                    
+                    /*if (!empty(self.selectedEntries)){
+                      if (self.selectedEntries[0].descriptor == 'Hourly'){
+                        noTODetails.setVisible(false);
+                        fixedFeeDetails.setVisible(false);
+                        monthlyRetainer.setVisible(false);
+                        hourlyDetails.setVisible(true);
+                      } else if (self.selectedEntries[0].descriptor == 'Fixed Fee') {
+                        noTODetails.setVisible(false);
+                        hourlyDetails.setVisible(false);
+                        monthlyRetainer.setVisible(false);
+                        fixedFeeDetails.setVisible(true);
+                      } else if (self.selectedEntries[0].descriptor == 'Monthly Retainer') {
+                        noTODetails.setVisible(false);
+                        hourlyDetails.setVisible(false);
+                        fixedFeeDetails.setVisible(false);
+                        monthlyRetainer.setVisible(true);
+                      } else if(self.selectedEntries[0].descriptor == 'No TO') {
+                        monthlyRetainer.setVisible(false);
+                        hourlyDetails.setVisible(false);
+                        fixedFeeDetails.setVisible(false);
+                        //noTODetails.setVisible(true);
+                      } else {
+                        noTODetails.setVisible(false);
+                        hourlyDetails.setVisible(false);
+                        monthlyRetainer.setVisible(false);
+                        fixedFeeDetails.setVisible(false);
+                      }
+                    } else {
+                      noTODetails.setVisible(false);
+                      hourlyDetails.setVisible(false);
+                      monthlyRetainer.setVisible(false);
+                      fixedFeeDetails.setVisible(false);
+                    }*/
+                  %>",
+                  "valueOutBinding": "createTaskOrder.taskOrderType.id"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "id": "dynSec",
+              "children": [
+                {
+                  "type": "dynamicSection",
+                  "id": "dynamicTO",
+                  "data": "<% 'init' %>",
+                  "dataVariableName": "TOType",
+                  "children": [
+                    {
+                      "type": "pod",
+                      "podId": "hourlyTO",
+                      "parameters": {
+                        "renderSection": "<% TOType == 'hourly' %>"
+                      }
+                    },
+                    {
+                      "type": "pod",
+                      "podId": "fixedFeeTO",
+                      "parameters": {
+                        "renderSection": "<% TOType == 'fixed' %>"
+                      }
+                    },
+                    {
+                      "type": "pod",
+                      "podId": "monthlyRetainerTO",
+                      "parameters": {
+                        "renderSection": "<% TOType == 'monthly' %>"
+                      }
+                    },
+                    {
+                      "type": "pod",
+                      "podId": "noTO",
+                      "parameters": {
+                        "renderSection": "<% TOType == 'none' %>"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "fieldSet",
+              "visible": false,
+              "title": "Additional Info",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hippaInformation",
+                  "label": "Hippa Amendment",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "id": "footer",
+      "children": [
+        {
+          "type": "richText",
+          "id": "footerText",
+          "enabled": "false",
+          "value": "Powered By Workday Extend"
+        }
+      ]
+    }
+  },
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "_generationNote": "Creates a single instance, as specified by of the IcAgreementRequest business object resource.",
+        "name": "createIcAgreementRequest",
+        "url": "https://api.workday.com/apps/icProcessV1_jjbwpv/v1/icAgreementRequests",
+        "authType": "sso",
+        "httpMethod": "POST",
+        "onSend": "<%
+          self.data.initiator = {'id': currentWorkerGET.id};
+          /*var body = {
+            'initiator': {'id': currentWorkerGET.id},
+            'supplier': {'id': empty supplier.getSelectedEntries() ? null : supplier.getSelectedEntries()[0].id},
+            'supplierCategoryID': empty supplierCategory.getSelectedEntries() ? null : supplierCategory.getSelectedEntries()[0].id,
+            'supplierName': empty supplier.getSelectedEntries() ? supplierName.value : supplier.getSelectedEntries()[0].descriptor,
+            'supplierAddressLine1': supplierAddressLine1.value,
+            'supplierAddressLine2': supplierAddressLine2.value,
+            'supplierCity': supplierCity.value,
+            'supplierCountry': {'id': empty supplierCountry.getSelectedEntries() ? null : supplierCountry.getSelectedEntries()[0].id},
+            'supplierCountryRegion': {'id': empty supplierCountryRegion.getSelectedEntries() ? null : supplierCountryRegion.getSelectedEntries()[0].id},
+            'supplierPhone': supplierPhone.value,
+            'supplierContactFirstName': supplierContactFirstName.value,
+            'supplierContactLastName': supplierContactLastName.value,
+            'supplierContactEmail': supplierContactEmail.value,
+            'description': supplierDescription.value,
+            'effectiveDate': effectiveDate.value.format('yyyy-MM-dd'),
+            'subjectToHIPPAOrBAARequired': subjectToHippaOrBaaRequired.value,
+            'registeredCompanyNumber': registeredCompanyNumber.value,
+            'contractStartDate': contractStartDate.value.format('yyyy-MM-dd'),
+            'contractEndDate': contractEndDate.value.format('yyyy-MM-dd'),
+            'contractType': contractType.value,
+            'status1099': status1099.value,
+            'taxAuthorityFormType': taxAuthorityFormType.value,
+            'tinType': tinType.value,
+            'taxID': taxID.value,
+            'hippaAmendment': hippaAmendment.value
+          };*/
+          console.info(json:asJSON(self.data));
+          return self.data;
+        %>",
+        "failOnStatusCodes": [
+          {
+            "code": 400
+          },
+          {
+            "code": 403
+          }
+        ]
+      },
+      {
+        "name": "createIcOrganizationDetail",
+        "url": "https://api.workday.com/apps/icProcessV1_jjbwpv/v1/icOrganizationDetails",
+        "authType": "sso",
+        "httpMethod": "POST",
+        "onSend": "<%
+          if (!empty self.data) {
+            self.data.icAgreementRequest = {'id':createIcAgreementRequest.id};
+          }
+          console.info(json:asJSON(self.data));
+          return self.data 
+        %>"
+      },
+      {
+        "name": "createTaskOrder",
+        "url": "https://api.workday.com/apps/icProcessV1_jjbwpv/v1/taskOrders",
+        "httpMethod": "POST",
+        "authType": "sso",
+        "onSend": "<%
+          self.data.icAgreementRequest = {'id': createIcAgreementRequest.id};
+          console.info(json:asJSON(self.data));
+          return self.data;
+        %>",
+        "failOnStatusCodes": [
+          {
+            "code": "400"
+          },
+          {
+            "code": "403"
+          }
+        ]
+      },
+      {
+        "name": "patchIcAgreementRequest",
+        "url": "<% 'https://api.workday.com/apps/icProcessV1_jjbwpv/v1/icAgreementRequests/' + createIcAgreementRequest.id %>",
+        "authType": "sso",
+        "httpMethod": "PATCH",
+        "onSend": "<%
+          if (empty self.data) {
+                      self.data = {:};
+          }
+          self.data.taskOrders = [{'id': createTaskOrder.id}];
+          if(!empty createIcOrganizationDetail?.id){
+            self.data.icOrganizationDetail = {'id': createIcOrganizationDetail.id};
+          }
+          console.info(json:asJSON(self.data));
+          return self.data;
+        %>",
+        "failOnStatusCodes": [
+          {
+            "code": 400
+          },
+          {
+            "code": 403
+          }
+        ]
+      },
+      {
+        "name": "createICDetail",
+        "url": "https://api.workday.com/apps/icProcessV1_jjbwpv/v1/icDetails?bulk=true",
+        "httpMethod": "POST",
+        "authType": "sso",
+        "onSend": "<%
+          console.info(json:asJSON(self.data));
+          return self.data;
+        %>",
+        "failOnStatusCodes": [
+          {
+            "code": "400"
+          },
+          {
+            "code": "403"
+          }
+        ]
+      },
+      {
+        "name": "patchTaskOrder",
+        "url": "<% 'https://api.workday.com/apps/icProcessV1_jjbwpv/v1/taskOrders/' + createTaskOrder.id %>",
+        "httpMethod": "PATCH",
+        "authType": "sso",
+        "onSend": "<%
+          if (empty self.data) {
+                      self.data = {:};
+          }
+          const detailIds = createICDetail.data.map(x => {{'id': x.body.id}});
+          self.data.icDetails = detailIds;
+          console.info(json:asJSON(self.data));
+          return self.data;
+        %>",
+        "failOnStatusCodes": [
+          {
+            "code": "400"
+          },
+          {
+            "code": "403"
+          }
+        ]
+      }
+    ],
+    "responseErrorDetail": {
+      "_generationNote": "This responseErrorDetail works with the Workday API error structure.",
+      "_generationNote2": "If there is only a single error, the errorSummary will be shown.",
+      "errorSummary": "<% error %>",
+      "_generationNote3": "For multiple errors, append the top-level error to provide context.",
+      "errors": "<% empty errors ? [] : [error].join(errors.map(err => { err.error } )) %>"
+    }
+  }
+}

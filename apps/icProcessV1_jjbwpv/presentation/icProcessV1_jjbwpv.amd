@@ -1,0 +1,162 @@
+{
+  "appProperties": [ ],
+  "flowDefinitions": [
+    {
+      "id": "submitICRequestFlow",
+      "flowSteps": [
+        {
+          "id": "createICRequestStep",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "requestConfirmStep",
+              "condition": "true"
+            }
+          ],
+          "startsFlow": true,
+          "taskId": "createIcAgreementRequest"
+        },
+        {
+          "id": "requestConfirmStep",
+          "endsFlow": true,
+          "taskId": "confirm"
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "requestNewICAgreementOrTO",
+      "routingPattern": "/",
+      "page": {
+        "id": "requestNewICAgreementOrTO"
+      }
+    },
+    {
+      "id": "createIcOrganizationDetail",
+      "routingPattern": "/createIcOrganizationDetail",
+      "page": {
+        "id": "createIcOrganizationDetail"
+      }
+    },
+    {
+      "id": "createIcAgreementRequest",
+      "routingPattern": "/createIcAgreementRequest",
+      "page": {
+        "id": "createIcAgreementRequest"
+      }
+    },
+    {
+      "id": "manageTaskOrderType",
+      "routingPattern": "/manageTaskOrderType",
+      "page": {
+        "id": "manageTaskOrderType"
+      }
+    },
+    {
+      "id": "createTaskOrder",
+      "routingPattern": "/createTaskOrder",
+      "page": {
+        "id": "createTaskOrder"
+      }
+    },
+    {
+      "id": "managePaymentType",
+      "routingPattern": "/managePaymentType",
+      "page": {
+        "id": "managePaymentType"
+      }
+    },
+    {
+      "id": "confirmRequestSubmission",
+      "routingPattern": "/confirmRequestSubmission",
+      "page": {
+        "id": "confirmRequestSubmission"
+      }
+    },
+    {
+      "id": "confirm",
+      "routingPattern": "/confirm",
+      "page": {
+        "id": "confirm"
+      }
+    },
+    {
+      "id": "endPointTests",
+      "routingPattern": "/endPointTests",
+      "page": {
+        "id": "endPointTests"
+      }
+    },
+    {
+      "id": "icAgreementEventDetail",
+      "routingPattern": "/icAgreementEventDetail/{eventId}",
+      "page": {
+        "id": "icAgreementEventDetail"
+      }
+    },
+    {
+      "id": "reviewICAgreement",
+      "routingPattern": "/reviewICAgreement/{eventStepId}",
+      "page": {
+        "id": "reviewICAgreement"
+      }
+    },
+    {
+      "id": "approveICAgreement",
+      "routingPattern": "/approveICAgreement/{eventId}",
+      "page": {
+        "id": "approveICAgreement"
+      }
+    },
+    {
+      "id": "uploadSignedICAgreement",
+      "routingPattern": "/uploadSignedICAgreement/{eventStepId}",
+      "page": {
+        "id": "uploadSignedICAgreement"
+      }
+    },
+    {
+      "id": "reviseICAgreement",
+      "routingPattern": "/reviseICAgreement/{eventStepId}",
+      "page": {
+        "id": "reviseICAgreement"
+      }
+    }
+  ],
+  "applicationId": "icProcessV1_jjbwpv",
+  "dataProviders": [
+    {
+      "key": "WQL",
+      "value": "https://api.workday.com/wql/v1"
+    },
+    {
+      "key": "app",
+      "value": "https://api.workday.com/apps/<% site.applicationId %>/v1/"
+    },
+    {
+      "key": "mainApp",
+      "value": "https://api.workday.com/apps/icProcessV1_jjbwpv/v1/"
+    },
+    {
+      "key": "orcs",
+      "value": "https://api.workday.com/orchestrate/v1/apps/<% site.applicationId %>/orchestrations/"
+    },
+    {
+      "key": "bp",
+      "value": "https://api.workday.com/businessProcess/v1/"
+    },
+    {
+      "key": "common",
+      "value": "https://api.workday.com/common/v1/"
+    },
+    {
+      "key": "staffing",
+      "value": "https://api.workday.com/staffing/v5/"
+    },
+    {
+      "key": "workerPhoto",
+      "value": "https://api.workday.com/common/v1/workerRawPhotoData"
+    }
+  ]
+}

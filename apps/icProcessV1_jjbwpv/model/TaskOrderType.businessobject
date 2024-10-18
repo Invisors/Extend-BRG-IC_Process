@@ -1,0 +1,25 @@
+{
+  "id": 4,
+  "name": "TaskOrderType",
+  "label": "Task Order Type",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "taskOrderTypes",
+    "label": "Task Order Types"
+  },
+  "fields": [
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": true,
+      "isReferenceId": true,
+      "type": "TEXT",
+      "name": "name",
+      "id": 1
+    }
+  ]
+}

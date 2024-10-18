@@ -1,0 +1,44 @@
+{
+  "id": 1,
+  "name": "LegalDocumentAttachment",
+  "label": "Legal Document Attachment",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "legalDocumentAttachments",
+    "label": "Legal Document Attachments"
+  },
+  "fields": [
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "IcAgreementRequest",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "IC Agreement Request",
+      "type": "SINGLE_INSTANCE",
+      "name": "icAgreementRequest",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "WORKER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "uploadedBy",
+      "id": 2
+    },
+    {
+      "precision": "MINUTE",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "uploaded",
+      "id": 3
+    }
+  ]
+}

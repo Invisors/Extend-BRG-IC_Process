@@ -1,0 +1,313 @@
+{
+  "id": 3,
+  "name": "IcDetail",
+  "label": "Ic Detail",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "icDetails",
+    "label": "Ic Details"
+  },
+  "fields": [
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "TaskOrder",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "taskOrder",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "WORKER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "IC",
+      "type": "SINGLE_INSTANCE",
+      "name": "ic",
+      "id": 2
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC First Name",
+      "type": "TEXT",
+      "name": "icFirstName",
+      "id": 3
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC Last Name",
+      "type": "TEXT",
+      "name": "icLastName",
+      "id": 4
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC Address Line 1",
+      "type": "TEXT",
+      "name": "icAddressLine1",
+      "id": 5
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC Address Line 2",
+      "type": "TEXT",
+      "name": "icAddressLine2",
+      "id": 6
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC City",
+      "type": "TEXT",
+      "name": "icCity",
+      "id": 7
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COUNTRY_REGION",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "IC Country Region",
+      "type": "SINGLE_INSTANCE",
+      "name": "icCountryRegion",
+      "id": 8
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COUNTRY",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "IC Country",
+      "type": "SINGLE_INSTANCE",
+      "name": "icCountry",
+      "id": 9
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC Phone Number",
+      "type": "TEXT",
+      "name": "icPhoneNumber",
+      "id": 10
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "IC Email",
+      "type": "TEXT",
+      "name": "icEmail",
+      "id": 11
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "label": "Requires BRG Email and or Laptop",
+      "type": "BOOLEAN",
+      "name": "requiresBRGEmailAndOrLaptop",
+      "id": 12
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "CUSTOM_ORGANIZATION",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "BRG Office",
+      "type": "SINGLE_INSTANCE",
+      "name": "brgOffice",
+      "id": 13
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "BrgBillingTitle",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "label": "BRG Billing Title",
+      "type": "SINGLE_INSTANCE",
+      "name": "brgBillingTitle",
+      "id": 14
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "hourlyPayRate",
+      "id": 15
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "hourlyClientBillRate",
+      "id": 16
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "totalPayAmount",
+      "id": 17
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "totalBillAmountToClientForIcsWork",
+      "id": 18
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "CURRENCY",
+      "name": "monthlyPaymentAmount",
+      "id": 19
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "additionalFeesBonus",
+      "id": 20
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "Reason for this IC",
+      "type": "TEXT",
+      "name": "reasonForThisIC",
+      "id": 21
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "label": "Exclusive to BRG",
+      "type": "BOOLEAN",
+      "name": "exclusiveToBRG",
+      "id": 22
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "Contingent Worker Type ID",
+      "type": "TEXT",
+      "name": "contingentWorkerTypeID",
+      "id": 23
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "CW Classification",
+      "type": "TEXT",
+      "name": "cwClassification",
+      "id": 24
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "workerClassification",
+      "id": 25
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "brgEmailOrLaptopReason",
+      "id": 26
+    },
+    {
+      "id": 27,
+      "name": "payAmountForEachInstallment",
+      "type": "CURRENCY",
+      "isPurgeable": false,
+      "enableIndex": false
+    },
+    {
+      "id": 28,
+      "name": "passThroughPercentage",
+      "type": "DECIMAL",
+      "isPurgeable": false,
+      "enableIndex": false,
+      "decimals": 2
+    },
+    {
+      "id": 29,
+      "name": "originationPercentage",
+      "type": "DECIMAL",
+      "isPurgeable": false,
+      "enableIndex": false,
+      "decimals": 2
+    },
+    {
+      "id": 30,
+      "name": "roleTaskBased",
+      "type": "BOOLEAN",
+      "label": "Role or Task Based",
+      "isPurgeable": false,
+      "enableIndex": false
+    },
+    {
+      "id": 31,
+      "name": "roleTaskName",
+      "type": "TEXT",
+      "label": "Role or Task Name",
+      "isReferenceId": false,
+      "useForDisplay": false,
+      "isPurgeable": false,
+      "enableIndex": false,
+      "enableSearch": false
+    }
+  ]
+}

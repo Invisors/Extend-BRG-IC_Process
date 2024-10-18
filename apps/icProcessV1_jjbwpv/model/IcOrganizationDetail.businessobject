@@ -1,0 +1,82 @@
+{
+  "id": 7,
+  "name": "IcOrganizationDetail",
+  "label": "Ic Organization Detail",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "icOrganizationDetails",
+    "label": "Ic Organization Details"
+  },
+  "fields": [
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "IcAgreementRequest",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "icAgreementRequest",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COMPANY",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "company",
+      "id": 2
+    },
+    {
+      "target": "COMPANY",
+      "isPurgeable": false,
+      "type": "MULTI_INSTANCE",
+      "name": "restrictedToCompanies",
+      "id": 3
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "WORKER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "manager",
+      "id": 4
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "SUPERVISORY_ORGANIZATION",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "supervisoryOrganization",
+      "id": 5
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COST_CENTER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "costCenter",
+      "id": 6
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "CUSTOM_ORGANIZATION",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "brgBusinessUnit",
+      "id": 7
+    }
+  ]
+}

@@ -1,0 +1,546 @@
+{
+  "id": "confirmRequestSubmission",
+  "endPoints": [
+    {
+      "name": "icAgreement",
+      "baseUrlType": "WQL",
+      "url": "<% '/data?query=' + string:urlEncode(`SELECT supplierName, supplier, supplierCategoryID, supplierContactFirstName, supplierContactLastName, supplierContactEmail, supplierCountry, supplierAddressLine1, supplierAddressLine2, supplierCity, supplierCountryRegion, supplierPhone, effectiveDate, description, hippaAmendment, registeredCompanyNumber, contractStartDate, contractEndDate, contractType, icOrganizationDetail, cf_CFITaskOrderESI{taskOrderType, brgMatter, cf_CFIProjectIsBillableLRV, cf_CFIClientLRV} FROM icProcessV1_jjbwpv_icAgreementRequests WHERE ICAgreementRequest IN (7e7439ec80c090020bcffc9819cb0000)`) %>",
+      "authType": "sso"
+    },
+    {
+      "name": "supplierCategoriesGET",
+      "url": "<% 'GetReferences/launch?type=Supplier_Category_ID' %>",
+      "authType": "sso",
+      "baseUrlType": "orcs"
+    },
+    {
+      "name": "countriesGET",
+      "baseUrlType": "WQL",
+      "authType": "sso",
+      "url": "<% '/data?query=' + string:urlEncode('SELECT country, countryRegions FROM countries ORDER BY country') %>"
+    }
+  ],
+  "onLoad": "<% 
+    pageVariables.cat = supplierCategoriesGET.data.find(x =>{x.id == icAgreement?.data[0]?.supplierCategoryID });
+    !empty icAgreement?.data[0]?.supplierCountry ? pageVariables.country = countriesGET.data.find(x =>{x.country.id == icAgreement?.data[0]?.supplierCountry?.id }) : pageVariables.country = [];
+    !empty pageVariables.country.countryRegions && !empty icAgreement?.data[0]?.supplierCountryRegion?.id  ? pageVariables.countryRegion = pageVariables.country.countryRegions.find(x =>{x.id == icAgreement?.data[0]?.supplierCountryRegion?.id }) : pageVariables.countryRegion = [];
+
+   %>",
+  "presentation": {
+    "preferredLabelPosition": "aside",
+    "title": {
+      "type": "title",
+      "label": "Workday Extend"
+    },
+    "body": {
+      "type": "basicFormLayout",
+      "sections": [
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "textArea",
+              "value": "<% icAgreement.data[0] %>",
+              "visible": true
+            },
+            {
+              "type": "textArea",
+              "value": "<% pageVariables %>",
+              "visible": false
+            },
+            {
+              "type": "fieldSet",
+              "title": "Supplier Info",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "supplierName",
+                  "label": "Contractor Name or Company",
+                  "value": "<% icAgreement?.data[0].supplierName %>"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplier",
+                  "label": "Existing Supplier",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "required": true,
+                  "values": "<% !empty icAgreement?.data[0].supplier? [icAgreement.data[0].supplier] : [] %>",
+                  "selectedValues": "<% !empty icAgreement?.data[0].supplier? [icAgreement.data[0].supplier.id] : [] %>"
+                }
+              ]
+            },
+            {
+              "id": "newSupplierDetails",
+              "type": "fieldSet",
+              "title": "New Supplier Details",
+              "children": [
+                {
+                  "type": "instanceList",
+                  "id": "supplierCategory",
+                  "label": "Supplier Category",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "values": "<% [pageVariables.cat] ?? [] %>",
+                  "selectedValues": "<% !empty icAgreement?.data[0].supplierCategoryID ? [icAgreement.data[0].supplierCategoryID] : [] %>"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactFirstName",
+                  "label": "Contact First Name",
+                  "value": "<% icAgreement?.data[0].supplierContactFirstName %>"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactLastName",
+                  "label": "Contact Last Name",
+                  "value": "<% icAgreement?.data[0].supplierContactLastName %>"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierContactEmail",
+                  "label": "Contact Email",
+                  "guide": {
+                    "type": "guide",
+                    "text": "This contact and email will be setup with access and email to submit the Invoice directly into Workday"
+                  },
+                  "helpText": "This contact and email will be setup with access and email to submit the Invoice directly into Workday",
+                  "value": "<% icAgreement?.data[0].supplierContactEmail %>"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplierCountry",
+                  "label": "Supplier Country",
+                  "values": "<% !empty pageVariables.country ? [pageVariables.country.country] : [] %>",
+                  "selectedValues": "<% !empty pageVariables.country ? [pageVariables.country.country.id] : [] %>"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierAddressLine1",
+                  "label": "Supplier Address Line 1"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierAddressLine2",
+                  "label": "Supplier Address Line 2"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierCity",
+                  "label": "Supplier City"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "supplierCountryRegion",
+                  "label": "Country Region",
+                  "values": "<% !empty pageVariables.countryRegion ? [pageVariables.countryRegion] : [] %>",
+                  "selectedValues": "<% !empty pageVariables.countryRegion ? [pageVariables.countryRegion.id] : [] %>"
+                },
+                {
+                  "type": "text",
+                  "id": "supplierPhone",
+                  "label": "Supplier Phone Number"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "fieldSet",
+              "title": "Contract Info",
+              "children": [
+                {
+                  "type": "date",
+                  "id": "effectiveDate",
+                  "label": "Effective Date",
+                  "value": ""
+                },
+                {
+                  "type": "textArea",
+                  "id": "supplierDescription",
+                  "label": "Expertise/Background & Description of Services to be Provided"
+                },
+                {
+                  "type": "checkBox",
+                  "id": "subjectToHippaOrBaaRequired",
+                  "label": "Will the Contractor's work be subject to HIPAA or require entry of a BAA?"
+                },
+                {
+                  "type": "text",
+                  "id": "registeredCompanyNumber",
+                  "label": "(IF BRG UK) Registered Company Number"
+                },
+                {
+                  "type": "date",
+                  "id": "contractStartDate",
+                  "label": "Contract Start Date"
+                },
+                {
+                  "type": "date",
+                  "id": "contractEndDate",
+                  "label": "Contract End Date"
+                },
+                {
+                  "type": "text",
+                  "id": "contractType",
+                  "label": "Contract Type"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "layoutSection",
+          "children": [
+            {
+              "type": "instanceList",
+              "id": "taskOrderType",
+              "label": "Type of Task Order",
+              "values": "<% !empty icAgreement.data[0]?.cf_CFITaskOrderESI?.taskOrderType ? [icAgreement.data[0]?.cf_CFITaskOrderESI?.taskOrderType] : [] %>"
+            },
+            {
+              "id": "hourlyDetails",
+              "render": "<% icAgreement.data[0]?.cf_CFITaskOrderESI?.taskOrderType?.descriptor == 'Hourly' %>",
+              "type": "fieldSet",
+              "title": "Hourly Details",
+              "children": [
+                {
+                  "type": "instanceList",
+                  "id": "brgMatter",
+                  "label": "BRG Matter / Project",
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "required": true,
+                  "values": "<% !empty icAgreement.data[0]?.cf_CFITaskOrderESI?.brgMatter ? [icAgreement.data[0]?.cf_CFITaskOrderESI?.brgMatter] : [] %>"
+                },
+                {
+                  "type": "checkBox",
+                  "trueLabel": "yes",
+                  "falseLabel": "no",
+                  "id": "isThisANonBillableProject",
+                  "label": "Is This A Non Billable Project"
+                },
+                {
+                  "type": "textArea",
+                  "id": "reasonForDoingAdministrativeOrBdWork",
+                  "visible": false,
+                  "required": true,
+                  "label": "Reason For Doing Administrative Or Bd Work"
+                },
+                {
+                  "type": "instanceList",
+                  "id": "clientOrMatterName",
+                  "label": "Client Or Matter Name",
+                  "enabled": false,
+                  "idKey": "id",
+                  "displayKey": "descriptor",
+                  "values": "<% getCustomers.data ?? [] %>"
+                },
+                {
+                  "type": "textArea",
+                  "id": "descriptionOfServicesForThisSpecificProject",
+                  "required": true,
+                  "label": "Description Of Services For This Specific Project"
+                },
+                {
+                  "type": "date",
+                  "datePrecision": "DAY",
+                  "dateFormat": "yyyy-MM-dd",
+                  "id": "firstDateOfWork",
+                  "required": true,
+                  "label": "First Date Of Work"
+                },
+                {
+                  "type": "date",
+                  "datePrecision": "DAY",
+                  "dateFormat": "yyyy-MM-dd",
+                  "required": true,
+                  "id": "endDate",
+                  "label": "End Date"
+                },
+                {
+                  "type": "number",
+                  "fractionDigits": 3,
+                  "id": "maximumHours",
+                  "required": true,
+                  "label": "Maximum Hours"
+                },
+                {
+                  "type": "currency",
+                  "currencyCode": "<% 'USD' %>",
+                  "id": "maximumAmount",
+                  "required": true,
+                  "label": "Maximum Amount"
+                },
+                {
+                  "type": "dropdown",
+                  "id": "typeOfPayment",
+                  "label": "Type Of Payment",
+                  "idKey": "id",
+                  "required": true,
+                  "displayKey": "descriptor",
+                  "values": "<% getPaymentTypes.data %>"
+                },
+                {
+                  "type": "checkBox",
+                  "trueLabel": "yes",
+                  "falseLabel": "no",
+                  "id": "requiresModificationOfPaymentTerms",
+                  "label": "Requires Modification Of Payment Terms"
+                },
+                {
+                  "type": "textArea",
+                  "id": "modificationOfPaymentTerms",
+                  "label": "Modification Of Payment Terms",
+                  "visible": false
+                },
+                {
+                  "type": "panelList",
+                  "id": "icPanelList",
+                  "label": "ICs",
+                  "_panels": "<% [{:},{:}] %>",
+                  "panelName": "ic",
+                  "indexVariableName": "i",
+                  "minimumRows": 1,
+                  "initializeFirstPanel": true,
+                  "isArrayOutBinding": true,
+                  "children": [
+                    {
+                      "type": "instanceList",
+                      "label": "Existing IC",
+                      "id": "existingIC",
+                      "values": "<% [] %>",
+                      "displayKey": "worker.descriptor"
+                    },
+                    {
+                      "type": "section",
+                      "horizontal": true,
+                      "id": "nameSec",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fName",
+                          "label": "First Name"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lName",
+                          "label": "Last Name"
+                        },
+                        {
+                          "type": "text",
+                          "id": "icEmail",
+                          "label": "Email Address"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "fieldSet",
+                      "id": "contactFS",
+                      "title": "Contact Info",
+                      "horizontal": true,
+                      "children": [
+                        {
+                          "type": "checkBox",
+                          "id": "useSuppContactHr",
+                          "label": "Use Supplier Contact Info",
+                          "value": true
+                        },
+                        {
+                          "type": "fieldSet",
+                          "id": "addrSec1",
+                          "visible": false,
+                          "children": [
+                            {
+                              "type": "instanceList",
+                              "id": "icCountry",
+                              "label": "Country",
+                              "values": "<% list:mapAttribute(countriesGET.data ?? [], 'country') %>"
+                            },
+                            {
+                              "type": "text",
+                              "id": "icAddressLine1",
+                              "label": "Address Line 1"
+                            },
+                            {
+                              "type": "text",
+                              "id": "icAddressLine2",
+                              "label": "Address Line 2"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "fieldSet",
+                          "id": "addrSec2",
+                          "visible": false,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "icCity",
+                              "label": "City"
+                            },
+                            {
+                              "type": "instanceList",
+                              "id": "icCountryRegion",
+                              "label": "Country Region",
+                              "values": "<% [] %>"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "id": "icDetailSec",
+                      "children": [
+                        {
+                          "type": "fieldSet",
+                          "id": "roleFS",
+                          "horizontal": true,
+                          "children": [
+                            {
+                              "type": "checkBox",
+                              "label": "Role-Based/Task-Based",
+                              "id": "roleTaskBased"
+                            },
+                            {
+                              "visible": false,
+                              "type": "textArea",
+                              "id": "roleTaskName",
+                              "label": "Role/Task Name"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "fieldSet",
+                          "id": "itFS",
+                          "horizontal": true,
+                          "children": [
+                            {
+                              "type": "checkBox",
+                              "label": "Additional Technology Requirements",
+                              "id": "needsEmailLaptop"
+                            },
+                            {
+                              "visible": false,
+                              "type": "textArea",
+                              "id": "emailLaptopDesc",
+                              "label": "Explain what IT is needed"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "instanceList",
+                          "label": "BRG Office",
+                          "id": "brgOffice",
+                          "required": true,
+                          "values": "<% getOffices.data ?? [] %>",
+                          "selectedValues": "<% ['55a39a865c6d1000d4337dcfc84f0000'] %>"
+                        },
+                        {
+                          "type": "instanceList",
+                          "label": "Designated BRG Billing Title",
+                          "id": "billingTitle",
+                          "required": true,
+                          "displayKey": "name",
+                          "values": "<% getBrgBillingTitles.data?? [] %>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "id": "payRateSec",
+                      "horizontal": true,
+                      "title": "Hourly Pay Rate",
+                      "children": [
+                        {
+                          "type": "currency",
+                          "id": "payRateAmount",
+                          "label": "Amount",
+                          "currencyCode": "USD"
+                        },
+                        {
+                          "type": "dropdown",
+                          "id": "payRateCurrency",
+                          "label": "Currency",
+                          "selectedValues": "<% ['USD'] %>",
+                          "displayKey": "Currency_ID",
+                          "idKey": "Currency_ID",
+                          "values": "<% allCurrencies.items %>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "id": "billRateSec",
+                      "horizontal": true,
+                      "title": "Client Bill Rate",
+                      "children": [
+                        {
+                          "type": "currency",
+                          "id": "billRateAmount",
+                          "label": "Amount",
+                          "currencyCode": "USD"
+                        },
+                        {
+                          "type": "dropdown",
+                          "id": "billRateCurrency",
+                          "label": "Currency",
+                          "selectedValues": "<% ['USD'] %>",
+                          "displayKey": "Currency_ID",
+                          "idKey": "Currency_ID",
+                          "values": "<% allCurrencies.items %>"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "checkBox",
+                  "id": "icChargesAsExpense",
+                  "label": "IC Charges to be treated as expenses"
+                },
+                {
+                  "type": "textArea",
+                  "id": "deliverables",
+                  "required": true,
+                  "label": "Deliverables"
+                },
+                {
+                  "type": "textArea",
+                  "id": "additionalDetails",
+                  "required": true,
+                  "label": "Additional Details if Applicable"
+                },
+                {
+                  "type": "textArea",
+                  "id": "otherTerms",
+                  "required": true,
+                  "label": "Other Terms and Conditions"
+                },
+                {
+                  "type": "textArea",
+                  "id": "notes",
+                  "required": true,
+                  "label": "Notes"
+                },
+                {
+                  "type": "checkBox",
+                  "id": "reqICException",
+                  "label": "Reqesting IC Exception Policy for GM Calculations "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "children": [ ]
+    }
+  }
+}

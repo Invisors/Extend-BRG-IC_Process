@@ -1,0 +1,889 @@
+{
+  "podId": "hourlyTO",
+  "seed": {
+    "parameters": [
+      "renderSection"
+    ],
+    "template": {
+      "type": "fieldSet",
+      "title": "Hourly Details",
+      "id": "hourlyDetails",
+      "render": "<% @@renderSection@@ %>",
+      "children": [
+        {
+          "type": "instanceList",
+          "label": "BRG Matter / Project",
+          "id": "brgMatter",
+          "required": "true",
+          "helpText": "Please add IC to conflict check",
+          "guide": {
+            "type": "guide",
+            "text": "Please add IC to conflict check"
+          },
+          "onChange": "<% 
+                    if(!empty self.value){
+                      var projDetail = getProjectDetails.invoke({'proj': self.value[0]});
+                      //debug.value = json:asJSON(projDetail.data[0]);
+                      isThisANonBillableProject.value = !projDetail.data[0].billable;
+                      if(!projDetail.data[0].billable){
+                        reasonForDoingAdministrativeOrBdWork.setVisible(true);
+                        reasonForDoingAdministrativeOrBdWork.setRequired(true);
+                      } else {
+                        reasonForDoingAdministrativeOrBdWork.setRequired(false);
+                        reasonForDoingAdministrativeOrBdWork.setVisible(false);
+                        reasonForDoingAdministrativeOrBdWork.value = '';
+                      }
+                      clientOrMatterName.setValues([projDetail.data[0].customerAsWorktag]);
+                      clientOrMatterName.setValue([projDetail.data[0].customerAsWorktag.id]);
+                    } else {
+                      clientOrMatterName.setValues([]);
+                      clientOrMatterName.setValue([]);
+                    }
+                   %>",
+          "values": "<% [] %>",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.brgMatter.id",
+              "value": "<% self.value[0] ?? null %>"
+            }
+          ],
+          "searchEndPoint": "<% endpoints.searchProj %>",
+          "searchResultValues": "<% searchProj.data %>",
+          "view": "true",
+          "relatedTask": "true"
+        },
+        {
+          "type": "text",
+          "enabled": "false",
+          "value": "Please add IC to conflict check."
+        },
+        {
+          "type": "checkBox",
+          "label": "Is This A Non Billable Project",
+          "id": "isThisANonBillableProject",
+          "enabled": "false",
+          "onChange": "<%
+                    if (!empty(self.value) && self.value){
+                      reasonForDoingAdministrativeOrBdWork.setVisible(true);
+                    } else {
+                      reasonForDoingAdministrativeOrBdWork.setVisible(false);
+                    }
+                  %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.isThisANonBillableProject",
+              "value": "<% self.value %>"
+            }
+          ],
+          "trueLabel": "yes",
+          "falseLabel": "no"
+        },
+        {
+          "type": "textArea",
+          "label": "Reason For Doing Administrative Or Bd Work",
+          "id": "reasonForDoingAdministrativeOrBdWork",
+          "required": "true",
+          "visible": "false",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.reasonForDoingAdministrativeOrBdWork",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "instanceList",
+          "label": "Client Or Matter Name",
+          "id": "clientOrMatterName",
+          "enabled": "false",
+          "helpText": "EL should be signed & matter activated before IC begins work",
+          "guide": {
+            "type": "guide",
+            "text": "EL should be signed & matter activated before IC begins work"
+          },
+          "values": "<% getCustomers.data ?? [] %>",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.clientOrMatterName.id",
+              "value": "<% self.value[0] ?? null %>"
+            }
+          ],
+          "view": "true",
+          "relatedTask": "true"
+        },
+        {
+          "type": "text",
+          "enabled": "false",
+          "value": "EL should be signed & matter activated before IC begins work."
+        },
+        {
+          "type": "textArea",
+          "label": "Description Of Services For This Specific Project",
+          "id": "descriptionOfServicesForThisSpecificProject",
+          "required": "true",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.descriptionOfServicesForThisSpecificProject",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "date",
+          "label": "First Date Of Work",
+          "id": "firstDateOfWork",
+          "required": "true",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.firstDateOfWork",
+              "value": "<% self.value %>"
+            }
+          ],
+          "datePrecision": "DAY",
+          "dateFormat": "yyyy-MM-dd"
+        },
+        {
+          "type": "date",
+          "label": "End Date",
+          "id": "endDate",
+          "required": "true",
+          "helpText": "An end date OR cap on hours is now required. If unknown, use end date of one year or best judgement.",
+          "guide": {
+            "type": "guide",
+            "text": "An end date OR cap on hours is now required. If unknown, use end date of one year or best judgement."
+          },
+          "onChange": "<% 
+                  if(!empty self.value) {
+                    maximumHours.setRequired(false);
+                    maximumAmount.setRequired(false);
+                  } else {
+                    maximumHours.setRequired(true);
+                    maximumAmount.setRequired(true);                    
+                  }
+                   %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.endDate",
+              "value": "<% self.value %>"
+            }
+          ],
+          "datePrecision": "DAY",
+          "dateFormat": "yyyy-MM-dd"
+        },
+        {
+          "type": "text",
+          "enabled": "false",
+          "value": "An end date OR cap on hours is now required. If unknown, use end date of one year or best judgement."
+        },
+        {
+          "type": "number",
+          "label": "Maximum Hours",
+          "id": "maximumHours",
+          "required": "true",
+          "onChange": "<% 
+                  if(!empty self.value) {
+                    endDate.setRequired(false);
+                    maximumAmount.setRequired(false);
+                  } else {
+                    endDate.setRequired(true);
+                    maximumAmount.setRequired(true);                    
+                  }
+                   %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.maximumHours",
+              "value": "<% self.value %>"
+            }
+          ],
+          "fractionDigits": "3"
+        },
+        {
+          "type": "currency",
+          "label": "Maximum Amount",
+          "id": "maximumAmount",
+          "required": "true",
+          "onChange": "<% 
+                  if(!empty self.value) {
+                    endDate.setRequired(false);
+                    maximumHours.setRequired(false);
+                  } else {
+                    endDate.setRequired(true);
+                    maximumHours.setRequired(true);                    
+                  }
+                   %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.maximumAmount.value",
+              "value": "<% self.value %>"
+            },
+            {
+              "valueOutBinding": "createTaskOrder.maximumAmount.currency",
+              "value": "<% self.getCurrencyCode() %>"
+            }
+          ],
+          "currencyCode": "<% 'USD' %>"
+        },
+        {
+          "type": "dropdown",
+          "label": "Type Of Payment",
+          "id": "typeOfPayment",
+          "required": "true",
+          "helpText": "Payment 'upon receipt of invoice' =  15th of the month after services are provided and invoice is received (ex. June services are paid July 15th) VS 'after collections' = 15th of the month after BRG has billed and collected payment from the client (ex. June collections are paid July 15th).",
+          "guide": {
+            "type": "guide",
+            "text": "Payment 'upon receipt of invoice' =  15th of the month after services are provided and invoice is received (ex. June services are paid July 15th) VS 'after collections' = 15th of the month after BRG has billed and collected payment from the client (ex. June collections are paid July 15th)."
+          },
+          "values": "<% getPaymentTypes.data %>",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.typeOfPayment.id",
+              "value": "<% self.value[0] ?? null %>"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "enabled": "false",
+          "value": "Payment 'upon receipt of invoice' =  15th of the month after services are provided and invoice is received (ex. June services are paid July 15th) VS 'after collections' = 15th of the month after BRG has billed and collected payment from the client (ex. June collections are paid July 15th)."
+        },
+        {
+          "type": "checkBox",
+          "label": "Requires Modification Of Payment Terms",
+          "id": "requiresModificationOfPaymentTerms",
+          "onChange": "<%
+                    if (!empty(self.value) && self.value){
+                      modificationOfPaymentTerms.setVisible(true);
+                    } else {
+                      modificationOfPaymentTerms.setVisible(false);
+                    }
+                  %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.requiresModificationOfPaymentTerms",
+              "value": "<% self.value %>"
+            }
+          ],
+          "trueLabel": "yes",
+          "falseLabel": "no"
+        },
+        {
+          "type": "textArea",
+          "label": "Modification Of Payment Terms",
+          "id": "modificationOfPaymentTerms",
+          "required": "true",
+          "visible": "false",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.modificationOfPaymentTerms",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "label": "IC Charges to be treated as expenses",
+          "id": "icChargesAsExpense",
+          "helpText": "Bill rate not required. Client is billed exactly what the IC charges, appears as expenses instead of time on Client invoice. (Examples: Report delvered to client, Research charged at cost).",
+          "guide": {
+            "type": "guide",
+            "text": "Bill rate not required. Client is billed exactly what the IC charges, appears as expenses instead of time on Client invoice. (Examples: Report delvered to client, Research charged at cost)."
+          },
+          "onChange": "<% 
+                    if(!empty self.value && self.value){
+                      /*for(var row : hourlyGrid.getRows()){
+                          row.billRateCol.billRateAmount.setRequired(false);
+                          row.billRateCol.billRateCurrency.setRequired(false);
+                        }*/
+                      for(var panel : icPanelList.getPanels()){
+                        let billRateFields = panel.getChildren()[6].childrenMap;
+                        billRateFields.billRateAmount.setRequired(false);
+                        billRateFields.billRateAmount.setEnabled(false);
+                        billRateFields.billRateAmount.setValue(null);
+                        billRateFields.billRateCurrency.setRequired(false);
+                        billRateFields.billRateCurrency.setEnabled(false);
+                        billRateFields.billRateCurrency.setValue(null);
+                      }
+                    } else {
+                      /*for(var row : hourlyGrid.getRows()){
+                          row.billRateCol.billRateAmount.setRequired(true);
+                          row.billRateCol.billRateCurrency.setRequired(true);
+                        }*/
+                      for(var panel : icPanelList.getPanels()){
+                        let billRateFields = panel.getChildren()[6].childrenMap;
+                        billRateFields.billRateAmount.setRequired(true);
+                        billRateFields.billRateAmount.setEnabled(true);
+                        billRateFields.billRateCurrency.setRequired(true);
+                        billRateFields.billRateCurrency.setEnabled(true);
+                      }
+                    }
+                    //icPanelList.getPanels()[0].getChildren()[0].childrenMap.lName.setRequired(true)
+                  %>",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.icChargesToBeTreatedAsExpenses",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "enabled": "false",
+          "value": "Bill rate not required. Client is billed exactly what the IC charges, appears as expenses instead of time on Client invoice. (Examples: Report delvered to client, Research charged at cost)."
+        },
+        {
+          "type": "textArea",
+          "label": "Deliverables",
+          "id": "deliverables",
+          "required": "true",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.deliverables",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "textArea",
+          "label": "Additional Details if Applicable",
+          "id": "additionalDetails",
+          "required": "true",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.additionalDetails",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "textArea",
+          "label": "Notes/Other Terms and Conditions",
+          "id": "otherTerms",
+          "required": "true",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.otherTermsAndConditions",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "label": "Reqesting IC Exception Policy for GM Calculations ",
+          "id": "reqICException",
+          "valuesOut": [
+            {
+              "valueOutBinding": "createTaskOrder.requestingIcExceptionPolicyForGmCalculations",
+              "value": "<% self.value %>"
+            }
+          ]
+        },
+        {
+          "type": "panelList",
+          "label": "ICs",
+          "id": "icPanelList",
+          "children": [
+            {
+              "type": "instanceList",
+              "label": "Existing IC",
+              "id": "existingIC",
+              "required": "false",
+              "onChange": "<% 
+                        if(!empty self.value){
+                          var cw = cwDetail.invoke({'cw': self.value[0]}).data[0];
+                          fName.value = cw?.firstName;
+                          fName.setEnabled(false);
+                          lName.value = cw?.lastName;
+                          lName.setEnabled(false);
+                          icEmail.value = cw?.primaryEmailAddress;
+                          icEmail.setEnabled(false);
+                          icCountry.setValues(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country] :[] );
+                          icCountry.setValue(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country.id] :[] );
+                          icCountry.setEnabled(false);
+                          icAddressLine1.value = cw?.primaryHomeAddress?.addressLine1;
+                          icAddressLine1.setEnabled(false);
+                          icAddressLine2.value = cw?.primaryHomeAddress?.addressLine2;
+                          icAddressLine2.setEnabled(false);
+                          icCity.value = cw?.primaryHomeAddress?.city;
+                          icCity.setEnabled(false);
+                          icCountryRegion.setValues(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1] :[] );
+                          icCountryRegion.setValue(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1.id] :[] );
+                          icCountryRegion.setEnabled(false);
+                          const title = getBrgBillingTitles.data.find(x => {x.name == cw.businessTitle});
+                          if(!empty title){ billingTitle.setValue([title.id]); }
+                        } else {
+                            fName.value = '';
+                            fName.setEnabled(true);
+                            lName.value = '';
+                            lName.setEnabled(true);
+                            icEmail.value = '';
+                            icEmail.setEnabled(true);
+                            icCountry.setValues(list:mapAttribute(countriesGET.data ?? [], 'country'));
+                            icCountry.setValue([]);
+                            icCountry.setEnabled(true);
+                            icAddressLine1.value = '';
+                            icAddressLine1.setEnabled(true);
+                            icAddressLine2.value = '';
+                            icAddressLine2.setEnabled(true);
+                            icCity.value = '';
+                            icCity.setEnabled(true);
+                            icCountryRegion.setValues([]);
+                            icCountryRegion.setValue([]);
+                            icCountryRegion.setEnabled(false);
+                            billingTitle.setValue([]);
+                        }
+                       %>",
+              "values": "<% [] %>",
+              "displayKey": "worker.descriptor",
+              "valueOutBinding": "createICDetail.data[].ic.id",
+              "searchEndPoint": "<% endpoints.searchCW %>",
+              "searchResultValues": "<% searchCW.data %>",
+              "view": "true",
+              "relatedTask": "true"
+            },
+            {
+              "type": "section",
+              "horizontal": true,
+              "id": "nameSec",
+              "children": [
+                {
+                  "type": "text",
+                  "label": "First Name",
+                  "id": "fName",
+                  "required": "true",
+                  "onChange": "<%
+                            if(!empty self.value && !empty lName.value){
+                              var cwMatch = searchCW.invoke({'first': self.value, 'last': lName.value, 'email': icEmail?.value});
+                              //debug.value = json:asJSON(cwMatch.data);
+                              if(!empty cwMatch.data){
+                                icMatchGrid.setVisible(true);
+                                icMatchGrid.setRows(cwMatch.data);
+                              }
+                            }  
+                           %>",
+                  "valueOutBinding": "createICDetail.data[].icFirstName"
+                },
+                {
+                  "type": "text",
+                  "label": "Last Name",
+                  "id": "lName",
+                  "required": "true",
+                  "onChange": "<%
+                            if(!empty self.value && !empty fName.value){
+                              var cwMatch = searchCW.invoke({'first': fName.value, 'last': self.value, 'email': icEmail?.value});
+                              //debug.value = json:asJSON(cwMatch.data);
+                              if(!empty cwMatch.data){
+                                icMatchGrid.setVisible(true);
+                                icMatchGrid.setRows(cwMatch.data);
+                              }
+                            }  
+                           %>",
+                  "valueOutBinding": "createICDetail.data[].icLastName"
+                },
+                {
+                  "type": "text",
+                  "label": "Email Address",
+                  "id": "icEmail",
+                  "required": "true",
+                  "onChange": "<%
+                            if(!empty self.value){
+                              if(!validate:match('^([a-zA-Z0-9.]+)@([a-zA-Z0-9.]+).([a-zA-Z]{2,5})$',self.value)){
+                                self.setError('Enter a valid email format');
+                              } else {
+                                self.clearError();
+                                var cwMatch = searchCW.invoke({'email': self.value, 'first': fName?.value, 'last': lName?.value});
+                                //debug.value = json:asJSON(cwMatch.data);
+                                icMatchGrid.setVisible(true);
+                                icMatchGrid.setRows(cwMatch.data);
+                              }
+                            } else {
+                              self.clearError();
+                            }
+                           %>",
+                  "valueOutBinding": "createICDetail.data[].icEmail"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "label": "IC Match Potentials",
+              "id": "icMatchGrid",
+              "visible": "false",
+              "columns": [
+                {
+                  "type": "column",
+                  "label": "Use Match",
+                  "columnId": "useMatchCol",
+                  "cellTemplate": {
+                    "type": "fieldSet",
+                    "children": [
+                      {
+                        "type": "hidden",
+                        "id": "hrICInstance",
+                        "value": "<% {'id': row?.id, 'worker': {'descriptor': row?.descriptor}} %>"
+                      },
+                      {
+                        "type": "pageActionButton",
+                        "label": "Use This Match",
+                        "id": "useThisMatch",
+                        "onClick": "<%
+                                  existingIC.setValues(!empty hrICInstance.value ? [hrICInstance.value] : []);
+                                  existingIC.setValue(!empty hrICInstance.value ? [hrICInstance.value.id] : []);
+                                  const cw = cwDetail.invoke({'cw': hrICInstance?.value?.id}).data[0];
+                                  fName.value = cw?.firstName;
+                                  fName.setEnabled(false);
+                                  lName.value = cw?.lastName;
+                                  lName.setEnabled(false);
+                                  icEmail.value = cw?.primaryEmailAddress;
+                                  icEmail.setEnabled(false);
+                                  icCountry.setValues(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country] :[] );
+                                  icCountry.setValue(!empty cw.primaryHomeAddress?.country ? [cw.primaryHomeAddress.country.id] :[] );
+                                  icCountry.setEnabled(false);
+                                  icAddressLine1.value = cw?.primaryHomeAddress?.addressLine1;
+                                  icAddressLine1.setEnabled(false);
+                                  icAddressLine2.value = cw?.primaryHomeAddress?.addressLine2;
+                                  icAddressLine2.setEnabled(false);
+                                  icCity.value = cw?.primaryHomeAddress?.city;
+                                  icCity.setEnabled(false);
+                                  icCountryRegion.setValues(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1] :[] );
+                                  icCountryRegion.setValue(!empty cw.primaryHomeAddress?.countryRegion1 ? [cw.primaryHomeAddress.countryRegion1.id] :[] );
+                                  icCountryRegion.setEnabled(false);
+                                  const title = getBrgBillingTitles.data.find(x => {x.name == cw.businessTitle});
+                                  if(!empty title){ billingTitle.setValue([title.id]); }
+                                  icMatchGrid.setVisible(false);
+                                  %>",
+                        "visible": "true"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Existing IC",
+                  "columnId": "existingICCol",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "icDescriptor",
+                    "enabled": "false",
+                    "value": "<% row?.descriptor %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Business Title",
+                  "columnId": "busTitleCol",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "busTitle",
+                    "enabled": "false",
+                    "value": "<% row?.businessTitle %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Standard Billing Rate",
+                  "columnId": "billRateCol",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "sBillRate",
+                    "enabled": "false",
+                    "value": "<% row?.cf_CF_StandardBillingRateLRV.value %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "label": "Standard Cost Rate",
+                  "columnId": "payRateCol",
+                  "cellTemplate": {
+                    "type": "text",
+                    "id": "sCostRate",
+                    "enabled": "false",
+                    "value": "<% row?.workerStandardCostRate.value %>"
+                  }
+                }
+              ],
+              "rows": "<% [] %>",
+              "rowVariableName": "row",
+              "doNotAdd": "true",
+              "doNotRemove": "true",
+              "doNotPutInTab": true,
+              "configurable": true
+            },
+            {
+              "type": "fieldSet",
+              "title": "Contact Info",
+              "horizontal": true,
+              "id": "contactFS",
+              "children": [
+                {
+                  "type": "checkBox",
+                  "label": "Use Supplier Contact Info",
+                  "id": "useSuppContactHr",
+                  "onChange": "<% 
+                    if(!empty self.value && self.value){
+                      addrSec1.setVisible(false);
+                      addrSec2.setVisible(false);
+                    } else {
+                      addrSec1.setVisible(true);
+                      addrSec2.setVisible(true);
+                    }
+                   %>",
+                  "value": "true"
+                },
+                {
+                  "type": "fieldSet",
+                  "id": "addrSec1",
+                  "visible": "false",
+                  "children": [
+                    {
+                      "type": "instanceList",
+                      "label": "Country",
+                      "id": "icCountry",
+                      "onChange": "<%
+                            if (!empty(self.value)){
+                              var countryData = countriesGET.data.find(x => {x.country.id == self.value[0]});
+                              var thisCountryRegions = countryData.countryRegions ?? [];
+                              if (!empty(thisCountryRegions)){
+                                icCountryRegion.setValues(thisCountryRegions);
+                                if (thisCountryRegions.size() == 1){
+                                  icCountryRegion.setValue([thisCountryRegions[0].id]);
+                                  icCountryRegion.setEnabled(false);
+                                } else {
+                                  icCountryRegion.setValue([]);
+                                  icCountryRegion.setEnabled(true);
+                                }
+                              } else {
+                                icCountryRegion.setValues([]);
+                                icCountryRegion.setValue([]);
+                                icCountryRegion.setEnabled(false);
+                              }
+                            } else {
+                              icCountryRegion.setValues([]);
+                              icCountryRegion.setValue([]);
+                              icCountryRegion.setEnabled(false);
+                            }
+                          %>",
+                      "values": "<% list:mapAttribute(countriesGET.data ?? [], 'country') %>",
+                      "valueOutBinding": "createICDetail.data[].icCountry.id",
+                      "view": "true",
+                      "relatedTask": "true"
+                    },
+                    {
+                      "type": "text",
+                      "label": "Address Line 1",
+                      "id": "icAddressLine1",
+                      "valueOutBinding": "createICDetail.data[].icAddressLine1"
+                    },
+                    {
+                      "type": "text",
+                      "label": "Address Line 2",
+                      "id": "icAddressLine2",
+                      "valueOutBinding": "createICDetail.data[].icAddressLine2"
+                    }
+                  ]
+                },
+                {
+                  "type": "fieldSet",
+                  "id": "addrSec2",
+                  "visible": "false",
+                  "children": [
+                    {
+                      "type": "text",
+                      "label": "City",
+                      "id": "icCity",
+                      "valueOutBinding": "createICDetail.data[].icCity"
+                    },
+                    {
+                      "type": "instanceList",
+                      "label": "Country Region",
+                      "id": "icCountryRegion",
+                      "enabled": "false",
+                      "values": "<% [] %>",
+                      "valueOutBinding": "createICDetail.data[].icCountryRegion.id",
+                      "view": "true",
+                      "relatedTask": "true"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "id": "icDetailSec",
+              "children": [
+                {
+                  "type": "fieldSet",
+                  "horizontal": true,
+                  "id": "roleFS",
+                  "render": "false",
+                  "children": [
+                    {
+                      "type": "checkBox",
+                      "label": "Role-Based/Task-Based",
+                      "id": "roleTaskBased",
+                      "onChange": "<%
+                                if(!empty self.value && self.value){
+                                  roleTaskName.setVisible(true);
+                                  roleTaskName.setRequired(true);
+                                } else {
+                                  roleTaskName.value = '';
+                                  roleTaskName.setVisible(false);
+                                  roleTaskName.setRequired(false);
+                                }
+                                         %>"
+                    },
+                    {
+                      "type": "textArea",
+                      "label": "Role/Task Name",
+                      "id": "roleTaskName",
+                      "visible": "false"
+                    }
+                  ]
+                },
+                {
+                  "type": "fieldSet",
+                  "horizontal": true,
+                  "id": "itFS",
+                  "children": [
+                    {
+                      "type": "checkBox",
+                      "label": "Additional Technology Requirements",
+                      "id": "needsEmailLaptop",
+                      "onChange": "<%
+                                if(!empty self.value && self.value){
+                                  emailLaptopDesc.setVisible(true);
+                                  emailLaptopDesc.setRequired(true);
+                                  self.setWarning('In rare cases when BRG laptop and/or email is required, additonial technology assignment charges will be applied to the Contingent Worker/Supplier for these additional resources.  Legal approval will be required for any requests.');
+                                } else {
+                                  emailLaptopDesc.value = '';
+                                  emailLaptopDesc.setVisible(false);
+                                  emailLaptopDesc.setRequired(false);
+                                  self.clearWarning();
+                                }
+                                         %>",
+                      "valueOutBinding": "createICDetail.data[].requiresBRGEmailAndOrLaptop"
+                    },
+                    {
+                      "type": "textArea",
+                      "label": "Explain what IT is needed",
+                      "id": "emailLaptopDesc",
+                      "visible": "false",
+                      "valueOutBinding": "createICDetail.data[].brgEmailOrLaptopReason"
+                    }
+                  ]
+                },
+                {
+                  "type": "instanceList",
+                  "label": "BRG Office",
+                  "id": "brgOffice",
+                  "required": "true",
+                  "helpText": "Is the IC associated with a specific BRG office for business purposes?",
+                  "guide": {
+                    "type": "guide",
+                    "text": "Is the IC associated with a specific BRG office for business purposes?"
+                  },
+                  "values": "<% getOffices.data ?? [] %>",
+                  "selectedValues": "<% ['55a39a865c6d1000d4337dcfc84f0000'] %>",
+                  "valueOutBinding": "createICDetail.data[].brgOffice.id",
+                  "view": "true",
+                  "relatedTask": "true"
+                },
+                {
+                  "type": "instanceList",
+                  "label": "Designated BRG Billing Title",
+                  "id": "billingTitle",
+                  "required": "true",
+                  "helpText": "The BRG accounting system requires that each individual have a BRG-equivalent billing title, one that is appropriate to the work they are doing and their client bill rate.",
+                  "guide": {
+                    "type": "guide",
+                    "text": "The BRG accounting system requires that each individual have a BRG-equivalent billing title, one that is appropriate to the work they are doing and their client bill rate."
+                  },
+                  "values": "<% getBrgBillingTitles.data?? [] %>",
+                  "displayKey": "name",
+                  "valueOutBinding": "createICDetail.data[].brgBillingTitle.id",
+                  "view": "true",
+                  "relatedTask": "true"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "title": "Hourly Pay Rate",
+              "horizontal": true,
+              "id": "payRateSec",
+              "children": [
+                {
+                  "type": "currency",
+                  "label": "Amount",
+                  "id": "payRateAmount",
+                  "required": "true",
+                  "helpText": "2x markup is standard. It is required in order to pay an IC 'upon receipt of invoice'.",
+                  "guide": {
+                    "type": "guide",
+                    "text": "2x markup is standard. It is required in order to pay an IC 'upon receipt of invoice'."
+                  },
+                  "valueOutBinding": "createICDetail.data[].hourlyPayRate.value",
+                  "currencyCode": "USD"
+                },
+                {
+                  "type": "dropdown",
+                  "label": "Currency",
+                  "id": "payRateCurrency",
+                  "required": "true",
+                  "values": "<% allCurrencies.items %>",
+                  "idKey": "Currency_ID",
+                  "displayKey": "Currency_ID",
+                  "selectedValues": "<% ['USD'] %>",
+                  "valueOutBinding": "createICDetail.data[].hourlyPayRate.currency"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "title": "Client Bill Rate",
+              "horizontal": true,
+              "id": "billRateSec",
+              "children": [
+                {
+                  "type": "currency",
+                  "label": "Amount",
+                  "id": "billRateAmount",
+                  "required": "<% empty icChargesAsExpense.value || (!empty icChargesAsExpense.value && !icChargesAsExpense.value)  %>",
+                  "helpText": "2x markup is standard. It is required in order to pay an IC 'upon receipt of invoice'.",
+                  "guide": {
+                    "type": "guide",
+                    "text": "2x markup is standard. It is required in order to pay an IC 'upon receipt of invoice'."
+                  },
+                  "valueOutBinding": "createICDetail.data[].hourlyClientBillRate.value",
+                  "currencyCode": "USD"
+                },
+                {
+                  "type": "dropdown",
+                  "label": "Currency",
+                  "id": "billRateCurrency",
+                  "required": "<% empty icChargesAsExpense.value || (!empty icChargesAsExpense.value && !icChargesAsExpense.value)  %>",
+                  "values": "<% allCurrencies.items %>",
+                  "idKey": "Currency_ID",
+                  "displayKey": "Currency_ID",
+                  "selectedValues": "<% ['USD'] %>",
+                  "valueOutBinding": "createICDetail.data[].hourlyClientBillRate.currency"
+                }
+              ]
+            }
+          ],
+          "minimumRows": "1",
+          "isArrayOutBinding": "true",
+          "panelName": "ic",
+          "indexVariableName": "i",
+          "doNotPutInTab": true,
+          "initializeFirstPanel": "true"
+        }
+      ]
+    }
+  }
+}

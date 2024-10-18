@@ -1,0 +1,500 @@
+{
+  "id": "createTaskOrder",
+  "_generationNote": "This page creates a single instance of the TaskOrder object. You can use this page as a starting template for building an end-user page, or used as an administration page to create new instances.",
+  "endPoints": [
+    {
+      "name": "allCurrencies",
+      "url": "https://api.workday.com/referenceData/currency/vers/latest/items?pageLimit=999",
+      "authType": "sso"
+    },
+    {
+      "name": "getIcAgreementRequests",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of IcAgreementRequest business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/icAgreementRequests` %>"
+    },
+    {
+      "name": "getTaskOrderTypes",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of TaskOrderType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/taskOrderTypes` %>"
+    },
+    {
+      "name": "getProjects",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "For data types with a large quantity of instances, it may be required to apply filtering.",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "_generationNote3": "PROJECT is a Workday Delivered Target, you will need to supply the relevant endpoint for supplying instances. This is a limitation with the current page generation.",
+      "url": "Provide the API intended to return PROJECT instances."
+    },
+    {
+      "name": "getCustomers",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "For data types with a large quantity of instances, it may be required to apply filtering.",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "_generationNote3": "CUSTOMER is a Workday Delivered Target, you will need to supply the relevant endpoint for supplying instances. This is a limitation with the current page generation.",
+      "url": "Provide the API intended to return CUSTOMER instances."
+    },
+    {
+      "name": "getPaymentTypes",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of PaymentType business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/paymentTypes` %>"
+    },
+    {
+      "name": "getIcDetails",
+      "httpMethod": "GET",
+      "authType": "sso",
+      "_generationNote": "Gets a collection of IcDetail business objects. By default, this endpoint returns 20 instances. To increase the page size, use the 'limit' query parameter (e.g. ?limit=100).",
+      "_generationNote2": "If there are more than 100 instances, consider using a search endpoint or another way for the user to filter the available selections.",
+      "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/icDetails` %>"
+    }
+  ],
+  "securityDomains": [ ],
+  "script": "",
+  "presentation": {
+    "pageType": "edit",
+    "title": {
+      "type": "title",
+      "id": "title",
+      "label": "Create Task Order"
+    },
+    "body": {
+      "type": "section",
+      "id": "bodySection",
+      "children": [
+        {
+          "type": "dropdown",
+          "id": "icAgreementRequest",
+          "label": "IC Agreement Request",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getIcAgreementRequests.data %>",
+          "valuesOut": [
+            {
+              "value": "<% self.value[0] ?? null %>",
+              "valueOutBinding": "createTaskOrder.icAgreementRequest.id"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "id": "taskOrderType",
+          "label": "Task Order Type",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getTaskOrderTypes.data %>",
+          "valuesOut": [
+            {
+              "value": "<% self.value[0] ?? null %>",
+              "valueOutBinding": "createTaskOrder.taskOrderType.id"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "supplierNameOrEntityName",
+          "label": "Supplier Name Or Entity Name",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.supplierNameOrEntityName"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "id": "brgMatter",
+          "label": "BRG Matter",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getProjects.data %>",
+          "valuesOut": [
+            {
+              "value": "<% self.value[0] ?? null %>",
+              "valueOutBinding": "createTaskOrder.brgMatter.id"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "trueLabel": "yes",
+          "falseLabel": "no",
+          "id": "isThisANonBillableProject",
+          "label": "Is This A Non Billable Project",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.isThisANonBillableProject"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "reasonForDoingAdministrativeOrBdWork",
+          "label": "Reason For Doing Administrative Or Bd Work",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.reasonForDoingAdministrativeOrBdWork"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "id": "clientOrMatterName",
+          "label": "Client Or Matter Name",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getCustomers.data %>",
+          "valuesOut": [
+            {
+              "value": "<% self.value[0] ?? null %>",
+              "valueOutBinding": "createTaskOrder.clientOrMatterName.id"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "descriptionOfServicesForThisSpecificProject",
+          "label": "Description Of Services For This Specific Project",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.descriptionOfServicesForThisSpecificProject"
+            }
+          ]
+        },
+        {
+          "type": "date",
+          "datePrecision": "DAY",
+          "dateFormat": "yyyy-MM-dd",
+          "id": "firstDateOfWork",
+          "label": "First Date Of Work",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.firstDateOfWork"
+            }
+          ]
+        },
+        {
+          "type": "date",
+          "datePrecision": "DAY",
+          "dateFormat": "yyyy-MM-dd",
+          "id": "endDate",
+          "label": "End Date",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.endDate"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "fractionDigits": 3,
+          "id": "maximumHours",
+          "label": "Maximum Hours",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.maximumHours"
+            }
+          ]
+        },
+        {
+          "type": "fieldSet",
+          "id": "maximumAmountFieldSet",
+          "children": [
+            {
+              "type": "currency",
+              "currencyCode": "<% createTaskOrder.maximumAmount?.currency ?? 'USD' %>",
+              "id": "maximumAmount",
+              "label": "Maximum Amount",
+              "valuesOut": [
+                {
+                  "value": "<% self.value %>",
+                  "valueOutBinding": "createTaskOrder.maximumAmount.value"
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "id": "maximumAmountCurrencyCode",
+              "displayKey": "Currency_ID",
+              "idKey": "Currency_ID",
+              "values": "<% allCurrencies.items %>",
+              "valuesOut": [
+                {
+                  "value": "<% self.value[0] %>",
+                  "valueOutBinding": "createTaskOrder.maximumAmount.currency"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "id": "typeOfPayment",
+          "label": "Type Of Payment",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getPaymentTypes.data %>",
+          "valuesOut": [
+            {
+              "value": "<% self.value[0] ?? null %>",
+              "valueOutBinding": "createTaskOrder.typeOfPayment.id"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "trueLabel": "yes",
+          "falseLabel": "no",
+          "id": "requiresModificationOfPaymentTerms",
+          "label": "Requires Modification Of Payment Terms",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.requiresModificationOfPaymentTerms"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "modificationOfPaymentTerms",
+          "label": "Modification Of Payment Terms",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.modificationOfPaymentTerms"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "trueLabel": "yes",
+          "falseLabel": "no",
+          "id": "icChargesToBeTreatedAsExpenses",
+          "label": "Ic Charges To Be Treated As Expenses",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.icChargesToBeTreatedAsExpenses"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "deliverables",
+          "label": "Deliverables",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.deliverables"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "additionalDetails",
+          "label": "Additional Details",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.additionalDetails"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "otherTermsAndConditions",
+          "label": "Other Terms And Conditions",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.otherTermsAndConditions"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "notes",
+          "label": "Notes",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.notes"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "trueLabel": "yes",
+          "falseLabel": "no",
+          "id": "requestingIcExceptionPolicyForGmCalculations",
+          "label": "Requesting Ic Exception Policy For Gm Calculations",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.requestingIcExceptionPolicyForGmCalculations"
+            }
+          ]
+        },
+        {
+          "type": "fieldSet",
+          "id": "payAmountForEachInstallmentFieldSet",
+          "children": [
+            {
+              "type": "currency",
+              "currencyCode": "<% createTaskOrder.payAmountForEachInstallment?.currency ?? 'USD' %>",
+              "id": "payAmountForEachInstallment",
+              "label": "Pay Amount For Each Installment",
+              "valuesOut": [
+                {
+                  "value": "<% self.value %>",
+                  "valueOutBinding": "createTaskOrder.payAmountForEachInstallment.value"
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "id": "payAmountForEachInstallmentCurrencyCode",
+              "displayKey": "Currency_ID",
+              "idKey": "Currency_ID",
+              "values": "<% allCurrencies.items %>",
+              "valuesOut": [
+                {
+                  "value": "<% self.value[0] %>",
+                  "valueOutBinding": "createTaskOrder.payAmountForEachInstallment.currency"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "scheduleOfWork",
+          "label": "Schedule Of Work",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.scheduleOfWork"
+            }
+          ]
+        },
+        {
+          "type": "date",
+          "datePrecision": "DAY",
+          "dateFormat": "yyyy-MM-dd",
+          "id": "taskOrderDate",
+          "label": "Task Order Date",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.taskOrderDate"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "icdbNotes",
+          "label": "Icdb Notes",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.icdbNotes"
+            }
+          ]
+        },
+        {
+          "type": "checkBox",
+          "trueLabel": "yes",
+          "falseLabel": "no",
+          "id": "signed",
+          "label": "Signed",
+          "valuesOut": [
+            {
+              "value": "<% self.value %>",
+              "valueOutBinding": "createTaskOrder.signed"
+            }
+          ]
+        },
+        {
+          "type": "instanceList",
+          "id": "icDetails",
+          "label": "Ic Details",
+          "_generationNote": "The values, used to create the selectable options, conforms to a Workday collection resource.",
+          "_generationNote2": "In particular, the response contains 'data' with an array of objects with both 'id' and 'descriptor'.",
+          "values": "<% getIcDetails.data %>",
+          "idKey": "id",
+          "displayKey": "descriptor",
+          "multiSelect": true,
+          "valuesOut": [
+            {
+              "value": "<% self.value?.map(selected => { return {'id': selected }}) ?? null %>",
+              "valueOutBinding": "createTaskOrder.icDetails"
+            }
+          ]
+        }
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "id": "footer",
+      "children": [
+        {
+          "type": "richText",
+          "id": "footerText",
+          "enabled": "false",
+          "value": "Powered By Workday Extend"
+        }
+      ]
+    }
+  },
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "_generationNote": "Creates a single instance, as specified by of the TaskOrder business object resource.",
+        "name": "createTaskOrder",
+        "url": "<% `https://api.workday.com/apps/{{site.applicationId}}/v1/taskOrders` %>",
+        "authType": "sso",
+        "httpMethod": "POST",
+        "failOnStatusCodes": [
+          {
+            "code": 400
+          },
+          {
+            "code": 403
+          }
+        ]
+      }
+    ],
+    "responseErrorDetail": {
+      "_generationNote": "This responseErrorDetail works with the Workday API error structure.",
+      "_generationNote2": "If there is only a single error, the errorSummary will be shown.",
+      "errorSummary": "<% error %>",
+      "_generationNote3": "For multiple errors, append the top-level error to provide context.",
+      "errors": "<% empty errors ? [] : [error].join(errors.map(err => { err.error } )) %>"
+    }
+  }
+}

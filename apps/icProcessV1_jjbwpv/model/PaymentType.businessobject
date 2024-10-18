@@ -1,0 +1,25 @@
+{
+  "id": 5,
+  "name": "PaymentType",
+  "label": "Payment Type",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "paymentTypes",
+    "label": "Payment Types"
+  },
+  "fields": [
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": true,
+      "isReferenceId": true,
+      "type": "TEXT",
+      "name": "name",
+      "id": 1
+    }
+  ]
+}

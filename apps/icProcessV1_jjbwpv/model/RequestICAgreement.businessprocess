@@ -1,0 +1,39 @@
+{
+  "id": 1,
+  "name": "RequestICAgreement",
+  "label": "Request IC Agreement",
+  "description": "Business Process Type for RequestICAgreement",
+  "useForOrchestrate": true,
+  "allowsCancel": true,
+  "approvalStep": {
+    "pageRoute": "/approveICAgreement/{eventId}",
+    "actions": [
+      "APPROVE",
+      "DENY",
+      "SEND_BACK"
+    ]
+  },
+  "actionSteps": [
+    {
+      "id": 1,
+      "name": "ReviewICAgreement",
+      "label": "Review IC Agreement",
+      "pageRoute": "/reviewICAgreement/{eventStepId}"
+    },
+    {
+      "id": 2,
+      "name": "UploadSignedICAgreement",
+      "label": "Upload Signed IC Agreement",
+      "pageRoute": "/uploadSignedICAgreement/{eventStepId}"
+    }
+  ],
+  "targetBusinessObject": "IcAgreementRequest",
+  "details": {
+    "pageRoute": "/icAgreementEventDetail/{eventId}"
+  },
+  "securityDomains": [
+    "ManageICProcess"
+  ],
+  "revisePageRoute": "/reviewICAgreement/{eventStepId}",
+  "allowsManualSendBack": false
+}

@@ -1,0 +1,299 @@
+{
+  "id": 1,
+  "name": "IcAgreementRequest",
+  "label": "IC Agreement Request",
+  "defaultSecurityDomains": [
+    "ManageICProcess",
+    "SetupICProcess"
+  ],
+  "defaultCollection": {
+    "name": "icAgreementRequests",
+    "label": "Ic Agreement Requests"
+  },
+  "fields": [
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "WORKER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "initiator",
+      "id": 1
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "SUPPLIER",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "supplier",
+      "id": 2
+    },
+    {
+      "label": "Supplier Category ID",
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierCategoryID",
+      "id": 3
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierName",
+      "id": 4
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "Supplier Address Line 1",
+      "type": "TEXT",
+      "name": "supplierAddressLine1",
+      "id": 5
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "Supplier Address Line 2",
+      "type": "TEXT",
+      "name": "supplierAddressLine2",
+      "id": 6
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierCity",
+      "id": 7
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COUNTRY_REGION",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "supplierCountryRegion",
+      "id": 8
+    },
+    {
+      "enableReportingFromTarget": false,
+      "secureByTarget": false,
+      "target": "COUNTRY",
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "type": "SINGLE_INSTANCE",
+      "name": "supplierCountry",
+      "id": 9
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierPhone",
+      "id": 10
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierContactFirstName",
+      "id": 11
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierContactLastName",
+      "id": 12
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "supplierContactEmail",
+      "id": 13
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "description",
+      "id": 14
+    },
+    {
+      "precision": "MINUTE",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "effectiveDate",
+      "id": 15
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "label": "Subject To HIPPA or BAA Required",
+      "type": "BOOLEAN",
+      "name": "subjectToHIPPAOrBAARequired",
+      "id": 16
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "registeredCompanyNumber",
+      "id": 17
+    },
+    {
+      "precision": "MINUTE",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "contractStartDate",
+      "id": 18
+    },
+    {
+      "precision": "MINUTE",
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "DATE",
+      "name": "contractEndDate",
+      "id": 19
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "contractType",
+      "id": 20
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "1099 Status",
+      "type": "TEXT",
+      "name": "status1099",
+      "id": 27
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "type": "TEXT",
+      "name": "taxAuthorityFormType",
+      "id": 28
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "TIN Type",
+      "type": "TEXT",
+      "name": "tinType",
+      "id": 29
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "Tax ID",
+      "type": "TEXT",
+      "name": "taxID",
+      "id": 30
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "HIPPA Amendment",
+      "type": "TEXT",
+      "name": "hippaAmendment",
+      "id": 31
+    },
+    {
+      "enableSearch": false,
+      "enableIndex": false,
+      "isPurgeable": false,
+      "useForDisplay": false,
+      "isReferenceId": false,
+      "label": "ICDB Notes",
+      "type": "TEXT",
+      "name": "icdbNotes",
+      "id": 32
+    },
+    {
+      "enableIndex": false,
+      "isPurgeable": false,
+      "type": "BOOLEAN",
+      "name": "signed",
+      "id": 33
+    },
+    {
+      "target": "TaskOrder",
+      "isPurgeable": false,
+      "type": "MULTI_INSTANCE",
+      "name": "taskOrders",
+      "id": 34
+    },
+    {
+      "id": 35,
+      "name": "icOrganizationDetail",
+      "type": "SINGLE_INSTANCE",
+      "useForDisplay": false,
+      "isPurgeable": false,
+      "target": "IcOrganizationDetail",
+      "secureByTarget": false,
+      "enableReportingFromTarget": false
+    }
+  ]
+}
